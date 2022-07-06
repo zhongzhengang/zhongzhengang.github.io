@@ -21,6 +21,135 @@
 ]]></content>
   </entry>
   <entry>
+    <title>异步操作测试工具Awaitility</title>
+    <url>/2022/07/06/%E5%BC%82%E6%AD%A5%E6%93%8D%E4%BD%9C%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7Awaitility/</url>
+    <content><![CDATA[<p>平时在写单元测试的时候，经常会遇到一些异步场景，不确定异步线程中当前的执行状态是否已经达到自己预期的观测点，这个时候我们都会使用<code>Thread.sleep(time)</code>方式武断的等待一段时间，或者自己写个while死循环来不停的检测某个条件是否满足。前一种方式会浪费测试用例执行时间，后一种方式不够优雅。awaitility工具就是用来解决这个场景的。</p>
+<span id="more"></span>
+
+<h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><p>异步系统难以测试。不仅因为需要处理多线程、超时和并发问题，还因为这些细节会遮蔽测试代码的意图。Awaitility是一个DSL，允许你准确且易读地表达对于异步系统的期望。示例如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">updatesCustomerStatus</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// Publish an asynchronous message to a broker (e.g. RabbitMQ):</span></span><br><span class="line">    messageBroker.publishMessage(updateCustomerStatusMessage);</span><br><span class="line">    <span class="comment">// Awaitility lets you wait until the asynchronous operation completes:</span></span><br><span class="line">    await().atMost(<span class="number">5</span>, SECONDS).until(customerStatusIsUpdated());</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="二、安装"><a href="#二、安装" class="headerlink" title="二、安装"></a>二、安装</h2><p>Maven:</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.awaitility<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>awaitility<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.2.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Gradle（Groovy DSL）:</p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">testImplementation <span class="string">&#x27;org.awaitility:awaitility:4.2.0&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="三、静态导入"><a href="#三、静态导入" class="headerlink" title="三、静态导入"></a>三、静态导入</h2><p>为了有效地使用Awaitility，建议从Awaitility框架静态导入如下方法：</p>
+<ul>
+<li><code>org.awaitility.Awaitility.*</code></li>
+</ul>
+<p>导入下面这些方法可能也是有用的：</p>
+<ul>
+<li><code>java.time.Duration.*</code></li>
+<li><code>java.util.concurrent.TimeUnit.*</code></li>
+<li><code>org.hamcrest.Matchers.*</code></li>
+<li><code>org.junit.Assert.*</code></li>
+</ul>
+<h2 id="四、使用示例"><a href="#四、使用示例" class="headerlink" title="四、使用示例"></a>四、使用示例</h2><h3 id="简单用法"><a href="#简单用法" class="headerlink" title="简单用法"></a>简单用法</h3><p>假设我们发送”add user”消息给我们的异步系统，就像下面这样：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">publish(<span class="keyword">new</span> <span class="title class_">AddUserMessage</span>(<span class="string">&quot;Awaitility Rocks&quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<p>在你的测试用例中，Awaitility可以帮助你轻松的检测数据库已经被更新了。最简单的形式就像下面这样：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().until(newUserIsAdded());</span><br></pre></td></tr></table></figure>
+
+<p>在测试用例中你自己得实现<code>newUserIsAdded</code>方法。只有当它指定的条件被满足了，Awaitility才会停止等待。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> Callable&lt;Boolean&gt; <span class="title function_">newUserIsAdded</span><span class="params">()</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> () -&gt; userRepository.size() == <span class="number">1</span>; <span class="comment">// The condition that must be fulfilled</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你当然也可以内联<code>newUserIsAdded</code>方法，就像下面这样写：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().until(() -&gt; userRepository.size() == <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>默认情况下Awaitility将会等待10秒钟，并且当到这个时间的时候如果用户仓库的数据量不等于1，那么它就会抛出一个<a href="http://static.javadoc.io/org.awaitility/awaitility/4.2.0/org/awaitility/core/ConditionTimeoutException.html">ConditionTimeoutException</a>异常来使测试失败。如果你想要不同的超时时间，你可以像下面这样定义：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().atMost(<span class="number">5</span>, SECONDS).until(newUserWasAdded());</span><br></pre></td></tr></table></figure>
+
+<h3 id="复用等待条件"><a href="#复用等待条件" class="headerlink" title="复用等待条件"></a>复用等待条件</h3><p>Awaitility也支持分割等待条件为数据提供（supplying）和条件匹配（matching）部分，这样可以更好的使用。下面是例子：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().until( userRepositorySize(), equalTo(<span class="number">1</span>) );</span><br></pre></td></tr></table></figure>
+
+<p><code>userRepositorySize</code>方法现在是一个<code>Integer</code>类型的<code>Callable</code>:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> Callable&lt;Integer&gt; <span class="title function_">userRepositorySize</span><span class="params">()</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> () -&gt; userRepository.size(); <span class="comment">// The suppling part of the condition</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>equalTo</code> 是一个标准的 <a href="http://code.google.com/p/hamcrest/">Hamcrest</a> 匹配器（matcher），为Awaitility指定条件匹配部分。</p>
+<p>现在我们可以在不同的测试用例中重用<code>userRepositorySize</code>。假设我们有一个测试用例在同一时间添加三个用户（user）对象。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">publish(<span class="keyword">new</span> <span class="title class_">AddUserMessage</span>(<span class="string">&quot;User 1&quot;</span>), <span class="keyword">new</span> <span class="title class_">AddUserMessage</span>(<span class="string">&quot;User 2&quot;</span>), <span class="keyword">new</span> <span class="title class_">AddUserMessage</span>(<span class="string">&quot;User 3&quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<p>我们现在重用<code>userRepositorySize</code> “condition supplier”，并且简单的更新Hamcrest匹配器：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().until( userRepositorySize(), equalTo(<span class="number">3</span>) );</span><br></pre></td></tr></table></figure>
+
+<p>在下面这种简单的例子中，你当然也可以利用Java的方法引用：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().until(userRepository::size, equalTo(<span class="number">3</span>) );</span><br></pre></td></tr></table></figure>
+
+<h3 id="字段类型条件"><a href="#字段类型条件" class="headerlink" title="字段类型条件"></a>字段类型条件</h3><p>你也可以通过字段引用来构建数据提供部分，例如：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().until( fieldIn(object).ofType(<span class="type">int</span>.class), equalTo(<span class="number">2</span>) );</span><br></pre></td></tr></table></figure>
+
+<p>或者:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().until( fieldIn(object).ofType(<span class="type">int</span>.class).andWithName(<span class="string">&quot;fieldName&quot;</span>), equalTo(<span class="number">2</span>) );</span><br></pre></td></tr></table></figure>
+
+<p>或者:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().until( fieldIn(object).ofType(<span class="type">int</span>.class).andAnnotatedWith(MyAnnotation.class), equalTo(<span class="number">2</span>) );</span><br></pre></td></tr></table></figure>
+
+<h3 id="Atomic-Adders-and-Accumulators"><a href="#Atomic-Adders-and-Accumulators" class="headerlink" title="Atomic, Adders and Accumulators"></a>Atomic, Adders and Accumulators</h3><p>如果你正在使用原子类型（Atomic），Awaitility提供简单的方法设置等待条件，直到原子类变量满足特定的值。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">AtomicInteger</span> <span class="variable">atomic</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">0</span>);</span><br><span class="line"><span class="comment">// Do some async stuff that eventually updates the atomic integer</span></span><br><span class="line">await().untilAtomic(atomic, equalTo(<span class="number">1</span>));</span><br></pre></td></tr></table></figure>
+
+<p>等待一个<code>AtomicBoolean</code>更加简单：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">AtomicBoolean</span> <span class="variable">atomic</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicBoolean</span>(<span class="literal">false</span>);</span><br><span class="line"><span class="comment">// Do some async stuff that eventually updates the atomic boolean</span></span><br><span class="line">await().untilTrue(atomic);</span><br></pre></td></tr></table></figure>
+
+<p>如果你在使用Adders，例如 <a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/atomic/LongAdder.html">LongAdder</a>，Awaitility允许你简单等待它到达一个特定值：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().untilAdder(myLongAdder, equalTo(<span class="number">5L</span>))</span><br></pre></td></tr></table></figure>
+
+<p>Likewise, if using Accumulators such as <a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/atomic/LongAccumulator.html">LongAccumulator</a>, you can do:</p>
+<p>同样地，如果使用Accumulators例如 <a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/atomic/LongAccumulator.html">LongAccumulator</a>，你可以像下面这样做：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().untilAccumulator(myLongAccumulator, equalTo(<span class="number">5L</span>))</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Lambdas"><a href="#Lambdas" class="headerlink" title="Lambdas"></a>Lambdas</h3><p>你可以条件中使用lambda表达式：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().atMost(<span class="number">5</span>, SECONDS).until(() -&gt; userRepository.size() == <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>或者方法引用:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().atMost(<span class="number">5</span>, SECONDS).until(userRepository::isNotEmpty);</span><br></pre></td></tr></table></figure>
+
+<p>或者组合方法引用和Hamcrest匹配器（matchers）:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().atMost(<span class="number">5</span>, SECONDS).until(userRepository::size, is(<span class="number">1</span>));</span><br></pre></td></tr></table></figure>
+
+<p>你也可以使用断言：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().atMost(<span class="number">5</span>, SECONDS).until(userRepository::size, size -&gt; size == <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>使用示例参考： <a href="http://www.jayway.com/2014/04/23/java-8-and-assertj-support-in-awaitility-1-6-0/">Jayway team blog</a>.</p>
+<h3 id="使用AssertJ或者Fest-Assert"><a href="#使用AssertJ或者Fest-Assert" class="headerlink" title="使用AssertJ或者Fest Assert"></a>使用AssertJ或者Fest Assert</h3><p>你可以使用 <a href="http://joel-costigliola.github.io/assertj/">AssertJ</a> 或 <a href="https://code.google.com/p/fest/">Fest Assert</a> 作为Hamcrest的替代者。实际上可以使用任意的第三方库，只要它会在发生错误的时候抛异常。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().atMost(<span class="number">5</span>, SECONDS).untilAsserted(() -&gt; assertThat(fakeRepository.getValue()).isEqualTo(<span class="number">1</span>));</span><br></pre></td></tr></table></figure>
+
+<h3 id="At-Least"><a href="#At-Least" class="headerlink" title="At Least"></a>At Least</h3><p>你可以使用Awaitility等待至少某段时间。例如：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().atLeast(<span class="number">1</span>, SECONDS).and().atMost(<span class="number">2</span>, SECONDS).until(value(), equalTo(<span class="number">1</span>));</span><br></pre></td></tr></table></figure>
+
+<p>例子中，在由<code>atLeast</code>指定的时长之前条件会被满足，否则会抛出一个异常来表明在指定的时长之前条件可能不会被满足。</p>
+<h3 id="断言值被保持"><a href="#断言值被保持" class="headerlink" title="断言值被保持"></a>断言值被保持</h3><p>从Awaitility 4.0.2开始，可以断言某个值被保持了指定的时长。例如，如果你需要确定在数据库中的某个值在1500毫秒中被保持了800毫秒，就可以像下面这样做：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">await().during(<span class="number">800</span>, MILLISECONDS).atMost(<span class="number">1500</span>, MILLISECONDS).until(() -&gt; myRepository.findById(<span class="string">&quot;id&quot;</span>), equalTo(<span class="string">&quot;something&quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<p>Awaitility最多等待1500毫秒，并且会检测<code>myRepository.findById(&quot;id&quot;)</code>必须等于”something”至少800毫秒。</p>
+<h2 id="五、重要事项"><a href="#五、重要事项" class="headerlink" title="五、重要事项"></a>五、重要事项</h2><p>Awaitility不会确保线程安全和线程同步！那是你自己的责任！确保你的代码正确处理了同步，或者你正在使用线程安全的数据结构，例如volatile字段或类，比如AtomicInteger和ConcurrentHashMap。</p>
+<p><strong>参考资料:</strong></p>
+<ol>
+<li>GitHub地址：<a href="https://github.com/awaitility/awaitility">https://github.com/awaitility/awaitility</a></li>
+<li>Getting started：<a href="https://github.com/awaitility/awaitility/wiki/Getting_started">https://github.com/awaitility/awaitility/wiki/Getting_started</a></li>
+<li>用户手册：<a href="https://github.com/awaitility/awaitility/wiki/Usage">https://github.com/awaitility/awaitility/wiki/Usage</a></li>
+<li><a href="https://github.com/awaitility/awaitility/blob/master/awaitility/src/test/java/org/awaitility/AwaitilityTest.java">Awaitility test case</a></li>
+<li><a href="https://github.com/awaitility/awaitility/blob/master/awaitility-java8-test/src/test/java/org/awaitility/AwaitilityJava8Test.java">Awaitility test case Java 8</a></li>
+<li><a href="https://github.com/awaitility/awaitility/blob/master/awaitility/src/test/java/org/awaitility/UsingFieldSupplierTest.java">Field supplier test case</a></li>
+<li><a href="https://github.com/awaitility/awaitility/blob/master/awaitility/src/test/java/org/awaitility/UsingAtomicTest.java">Atomic test case</a></li>
+<li><a href="http://awaitility.googlecode.com/files/awaitility-khelg-2011.pdf">Presentation</a> from <a href="http://www.jayway.com/">Jayway</a>‘s KHelg 2011</li>
+</ol>
+]]></content>
+      <categories>
+        <category>编程 - 测试</category>
+      </categories>
+      <tags>
+        <tag>Awaitility</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>基础知识</title>
     <url>/2022/07/03/01%20%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</url>
     <content><![CDATA[<h2 id="一、基本数据类型及其封装类型"><a href="#一、基本数据类型及其封装类型" class="headerlink" title="一、基本数据类型及其封装类型"></a>一、基本数据类型及其封装类型</h2><p>Java基本类型共有八种，基本类型可以分为三类，字符类型char，布尔类型boolean以及数值类型byte、short、int、long、float、double。数值类型又可以分为整数类型byte、short、int、long和浮点数类型float、double。JAVA中的数值类型不存在无符号的，它们的取值范围是固定的，不会随着机器硬件环境或者<a href="http://lib.csdn.net/base/operatingsystem">操作系统</a>的改变而改变。实际上，JAVA中还存在另外一种基本类型void，它也有对应的包装类 java.lang.Void，不过我们无法直接对它们进行操作。</p>
