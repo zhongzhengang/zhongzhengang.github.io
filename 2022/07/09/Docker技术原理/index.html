@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.12.1","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、Docker架构Docker包括三个基本概念：  镜像（Image）: Docker 镜像（Image），就相当于是一个 root 文件系统。比如官方镜像 ubuntu:16.04 就包含了完整的一套 Ubuntu16.04 最小系统的 root 文件系统。 容器（Container）：镜像（Image）和容器（Container）的关系，就像是面向对象程序设计中的类和实例一样，镜像是静态的定">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker技术原理">
+<meta property="og:url" content="http://example.com/2022/07/09/Docker%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="钟镇刚的博客">
+<meta property="og:description" content="一、Docker架构Docker包括三个基本概念：  镜像（Image）: Docker 镜像（Image），就相当于是一个 root 文件系统。比如官方镜像 ubuntu:16.04 就包含了完整的一套 Ubuntu16.04 最小系统的 root 文件系统。 容器（Container）：镜像（Image）和容器（Container）的关系，就像是面向对象程序设计中的类和实例一样，镜像是静态的定">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/Docker%E7%9A%84CS%E6%9E%B6%E6%9E%84%E5%9B%BE.png">
+<meta property="og:image" content="http://example.com/2022/07/09/Docker%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86/images/Docker分层存储.jpg">
+<meta property="og:image" content="http://example.com/images/overlay2.png">
+<meta property="og:image" content="http://example.com/images/%E5%AE%B9%E5%99%A8%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="http://example.com/images/Docker容器层结构图.png">
+<meta property="og:image" content="http://example.com/images/Docker%E7%BB%91%E5%AE%9A%E6%95%B0%E6%8D%AE%E5%8D%B7%E7%A4%BA%E6%84%8F%E5%9B%BE.png">
+<meta property="og:image" content="http://example.com/images/Docker%E5%9B%9B%E7%A7%8D%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%BC%8F%E7%A4%BA%E6%84%8F%E5%9B%BE.png">
+<meta property="og:image" content="http://example.com/images/Docker%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C-bridge%E6%A8%A1%E5%BC%8F%E7%A4%BA%E6%84%8F%E5%9B%BE.png">
+<meta property="og:image" content="http://example.com/images/Docker%E7%BD%91%E6%A1%A5%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%AB%AF%E5%8F%A3%E6%98%A0%E5%B0%84%E7%A4%BA%E6%84%8F%E5%9B%BE.png">
+<meta property="og:image" content="http://example.com/images/docker-single-host-networking-iptables.jpg">
+<meta property="og:image" content="http://example.com/images/docker-single-host-networking-docker0.jpg">
+<meta property="og:image" content="http://example.com/images/Docker%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C-container%E6%A8%A1%E5%BC%8F%E7%A4%BA%E6%84%8F%E5%9B%BE.png">
+<meta property="og:image" content="http://example.com/images/Docker%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C-host%E6%A8%A1%E5%BC%8F%E7%A4%BA%E6%84%8F%E5%9B%BE.png">
+<meta property="og:image" content="http://example.com/images/Docker%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C-none%E6%A8%A1%E5%BC%8F%E7%A4%BA%E6%84%8F%E5%9B%BE.png">
+<meta property="og:image" content="http://example.com/images/Docker%E5%88%9B%E5%BB%BA%E5%AE%B9%E5%99%A8%E8%BF%87%E7%A8%8B%E7%A4%BA%E6%84%8F%E5%9B%BE.png">
+<meta property="article:published_time" content="2022-07-09T01:24:52.176Z">
+<meta property="article:modified_time" content="2022-07-09T02:24:22.702Z">
+<meta property="article:author" content="钟镇刚">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/Docker%E7%9A%84CS%E6%9E%B6%E6%9E%84%E5%9B%BE.png">
+
+
+<link rel="canonical" href="http://example.com/2022/07/09/Docker%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2022/07/09/Docker%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86/","path":"2022/07/09/Docker技术原理/","title":"Docker技术原理"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Docker技术原理 | 钟镇刚的博客</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?84040c23487973dba4fe76676ed34bf5"></script>
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">钟镇刚的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Docker%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">一、Docker架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Docker-%E9%95%9C%E5%83%8F"><span class="nav-number">2.</span> <span class="nav-text">二、Docker 镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#rootfs-%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.1.</span> <span class="nav-text">rootfs 根文件系统</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.1.1.</span> <span class="nav-text">Linux文件系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.1.2.</span> <span class="nav-text">根文件系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E9%87%8D%E8%A6%81%EF%BC%9F"><span class="nav-number">2.1.3.</span> <span class="nav-text">根文件系统为什么重要？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux%E5%86%85%E6%A0%B8%E6%98%AF%E6%80%8E%E4%B9%88%E6%8C%82%E8%BD%BD%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%EF%BC%9F"><span class="nav-number">2.1.4.</span> <span class="nav-text">Linux内核是怎么挂载根文件系统的？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%90%84%E4%B8%AA%E5%B8%B8%E7%94%A8%E7%9B%AE%E5%BD%95%E7%AE%80%E4%BB%8B"><span class="nav-number">2.1.5.</span> <span class="nav-text">根文件系统各个常用目录简介</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B1%82%E5%AD%98%E5%82%A8"><span class="nav-number">2.2.</span> <span class="nav-text">分层存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Union-FS-%EF%BC%88%E8%81%94%E5%90%88%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">Union FS （联合文件系统）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dockerfile"><span class="nav-number">2.4.</span> <span class="nav-text">Dockerfile</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Docker-%E5%AE%B9%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">三、Docker 容器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4"><span class="nav-number">3.1.</span> <span class="nav-text">命名空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E7%BB%84"><span class="nav-number">3.2.</span> <span class="nav-text">控制组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E7%9A%84%E5%AD%98%E5%82%A8%E7%BB%84%E7%BB%87%E6%96%B9%E5%BC%8F"><span class="nav-number">3.3.</span> <span class="nav-text">容器的存储组织方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8D%B7%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">3.4.</span> <span class="nav-text">数据卷的实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Volume-%E6%8C%82%E8%BD%BD"><span class="nav-number">3.4.1.</span> <span class="nav-text">Volume 挂载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%91%E5%AE%9A%E6%8C%82%E8%BD%BD"><span class="nav-number">3.4.2.</span> <span class="nav-text">绑定挂载</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C"><span class="nav-number">3.5.</span> <span class="nav-text">容器网络</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#docker%E7%9A%844%E7%A7%8D%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.5.1.</span> <span class="nav-text">docker的4种网络模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bridge%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.5.2.</span> <span class="nav-text">bridge模式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E6%98%A0%E5%B0%84"><span class="nav-number">3.5.2.1.</span> <span class="nav-text">端口映射</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#iptables%E7%AE%80%E8%BF%B0"><span class="nav-number">3.5.2.2.</span> <span class="nav-text">iptables简述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Docker0%E7%9A%84%E2%80%9C%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E2%80%9D"><span class="nav-number">3.5.2.3.</span> <span class="nav-text">Docker0的“双重身份”</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#container%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.5.3.</span> <span class="nav-text">container模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#host%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.5.4.</span> <span class="nav-text">host模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#none%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.5.5.</span> <span class="nav-text">none模式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Docker-%E4%BB%93%E5%BA%93"><span class="nav-number">4.</span> <span class="nav-text">四、Docker 仓库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Docker-Registry-%E5%85%AC%E5%BC%80%E6%9C%8D%E5%8A%A1"><span class="nav-number">4.1.</span> <span class="nav-text">Docker Registry 公开服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A7%81%E6%9C%89-Docker-Registry"><span class="nav-number">4.2.</span> <span class="nav-text">私有 Docker Registry</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%E4%B8%8E%E8%B5%84%E6%BA%90%E6%B1%87%E6%80%BB"><span class="nav-number">6.</span> <span class="nav-text">参考资料与资源汇总</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.1.</span> <span class="nav-text">参考资料</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8F%9C%E9%B8%9F%E6%95%99%E7%A8%8B"><span class="nav-number">6.2.</span> <span class="nav-text">菜鸟教程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B9%A6%E7%B1%8D"><span class="nav-number">6.3.</span> <span class="nav-text">书籍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Docker%E8%B5%84%E6%BA%90"><span class="nav-number">6.4.</span> <span class="nav-text">Docker资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Docker%E5%9B%BD%E5%86%85%E9%95%9C%E5%83%8F"><span class="nav-number">6.5.</span> <span class="nav-text">Docker国内镜像</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">钟镇刚</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhongzhengang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhongzhengang" rel="noopener" target="_blank">GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/mucaoyx" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;mucaoyx" rel="noopener" target="_blank">CSDN</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/09/Docker%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="钟镇刚">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="钟镇刚的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Docker技术原理 | 钟镇刚的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Docker技术原理
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2022-07-09 09:24:52 / 修改时间：10:24:22" itemprop="dateCreated datePublished" datetime="2022-07-09T09:24:52+08:00">2022-07-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%99%9A%E6%8B%9F%E5%8C%96-%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">虚拟化 - 容器</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>17k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="一、Docker架构"><a href="#一、Docker架构" class="headerlink" title="一、Docker架构"></a>一、Docker架构</h2><p>Docker包括三个基本概念：</p>
+<ul>
+<li><strong>镜像（Image）</strong>: Docker 镜像（Image），就相当于是一个 <a target="_blank" rel="noopener" href="https://blog.csdn.net/LEON1741/article/details/78159754">root 文件系统</a>。比如官方镜像 ubuntu:16.04 就包含了完整的一套 Ubuntu16.04 最小系统的 root 文件系统。</li>
+<li><strong>容器（Container）</strong>：镜像（Image）和容器（Container）的关系，就像是面向对象程序设计中的类和实例一样，镜像是静态的定义，容器是镜像运行时的实体。容器可以被创建、启动、停止、删除、暂停等。</li>
+<li><strong>仓库（Repository）</strong>：仓库可看成一个代码控制中心，用来保存镜像。</li>
+</ul>
+<p>Docker 容器通过 Docker 镜像来创建。容器与镜像的关系类似于面向对象编程中的对象与类。</p>
+<span id="more"></span>
+
+<p>Docker 使用<strong>客户端-服务器 (C&#x2F;S) 架构模式</strong>，使用远程API来管理和创建Docker容器。<strong>TestContainer</strong>就是通过Docker Engine的API来创建和操作容器的。Docker架构模式结构如下图所示：</p>
+<p><img src="/images/Docker%E7%9A%84CS%E6%9E%B6%E6%9E%84%E5%9B%BE.png" alt="img"></p>
+<p>下表介绍了架构模式图中涉及到的概念：</p>
+<table>
+<thead>
+<tr>
+<th align="left">概念</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Docker 镜像(Images)</td>
+<td align="left">Docker 镜像是用于创建 Docker 容器的模板，比如 Ubuntu 系统。</td>
+</tr>
+<tr>
+<td align="left">Docker 容器(Container)</td>
+<td align="left">容器是独立运行的一个或一组应用，是镜像运行时的实体。</td>
+</tr>
+<tr>
+<td align="left">Docker 客户端(Client)</td>
+<td align="left">Docker 客户端通过命令行或者其他工具使用 Docker SDK (<a target="_blank" rel="noopener" href="https://docs.docker.com/develop/sdk/">https://docs.docker.com/develop/sdk/</a>) 与 Docker 的守护进程通信。</td>
+</tr>
+<tr>
+<td align="left">Docker 主机(Host)</td>
+<td align="left">一个物理或者虚拟的机器用于执行 Docker 守护进程和容器。</td>
+</tr>
+<tr>
+<td align="left">Docker Registry</td>
+<td align="left">Docker 仓库用来保存镜像，可以理解为代码控制中的代码仓库。Docker Hub(<a target="_blank" rel="noopener" href="https://hub.docker.com/">https://hub.docker.com</a>) 提供了庞大的镜像集合供使用。一个 Docker Registry 中可以包含多个仓库（Repository）；每个仓库可以包含多个标签（Tag）；每个标签对应一个镜像。通常，一个仓库会包含同一个软件不同版本的镜像，而标签就常用于对应该软件的各个版本。我们可以通过 <strong>&lt;仓库名&gt;:&lt;标签&gt;</strong> 的格式来指定具体是这个软件哪个版本的镜像。如果不给出标签，将以 <strong>latest</strong> 作为默认标签。</td>
+</tr>
+<tr>
+<td align="left">Docker Machine</td>
+<td align="left">Docker Machine是一个简化Docker安装的命令行工具，通过一个简单的命令行即可在相应的平台上安装Docker，比如VirtualBox、 Digital Ocean、Microsoft Azure。</td>
+</tr>
+</tbody></table>
+<h2 id="二、Docker-镜像"><a href="#二、Docker-镜像" class="headerlink" title="二、Docker 镜像"></a>二、Docker 镜像</h2><p>我们都知道，操作系统分为 <strong>内核</strong> 和 <strong>用户空间</strong>。对于 <code>Linux</code> 而言，内核启动后，会挂载 <a target="_blank" rel="noopener" href="https://blog.csdn.net/LEON1741/article/details/78159754">root文件系统</a>为其提供用户空间支持。而 <strong>Docker 镜像</strong>（<code>Image</code>），就相当于是一个 root文件系统。比如官方镜像 <code>ubuntu:18.04</code> 就包含了完整的一套 Ubuntu 18.04 最小系统的 <code>root</code> 文件系统。</p>
+<p><strong>Docker 镜像</strong> 是一个特殊的文件系统，除了提供容器运行时所需的程序、库、资源、配置等文件外，还包含了一些为运行时准备的一些配置参数（如匿名卷、环境变量、用户等）。镜像 <strong>不包含</strong> 任何动态数据，其内容在构建之后也不会被改变。</p>
+<h3 id="rootfs-根文件系统"><a href="#rootfs-根文件系统" class="headerlink" title="rootfs 根文件系统"></a>rootfs 根文件系统</h3><h4 id="Linux文件系统"><a href="#Linux文件系统" class="headerlink" title="Linux文件系统"></a>Linux文件系统</h4><p>文件系统是os用来明确存储设备（常见的是磁盘，也有基于NAND Flash的固态硬盘）或分区上的文件的方法和数据结构；即在存储设备上组织文件的方法。操作系统中负责管理和存储文件信息的软件机构称为文件管理系统，简称文件系统。 </p>
+<p>文件系统由三部分组成：文件系统的接口，对对象操作和管理的软件集合，对象及属性。从系统角度来看，文件系统是对<a target="_blank" rel="noopener" href="https://cloud.tencent.com/product/cfs?from=10680">文件存储</a>设备的空间进行组织和分配，负责文件存储并对存入的文件进行保护和检索的系统。具体地说，它负责为用户建立文件，存入、读出、修改、转储文件，控制文件的存取，当用户不再使用时撤销文件等。</p>
+<p>尽管内核是linux的核心，但文件却是用户与操作系统交互所采用的主要工具。这对linux来说尤其如此，这是因为在UNIX传统中，它使用文件I&#x2F;O机制管理硬件设备和数据文件。</p>
+<h4 id="根文件系统"><a href="#根文件系统" class="headerlink" title="根文件系统"></a>根文件系统</h4><p>根文件系统首先是内核启动时所mount的第一个文件系统，内核代码映像文件保存在根文件系统中，而系统引导启动程序会在根文件系统挂载之后从中把一些基本的初始化脚本和服务等加载到内存中去运行。</p>
+<p>根文件系统首先是一种文件系统，该文件系统不仅具有普通文件系统的存储数据文件的功能，但相对于普通的文件系统，它是内核启动时挂载（mount）的第一个文件系统，内核代码的映像文件保存在根文件系统中，系统引导启动程序会在根文件系统挂载之后从中把一些初始化脚本（如rcS,inittab）和服务加载到内存中去运行。 文件系统和内核是完全独立的两个部分。在嵌入式中移植的内核下载到开发板上，是没有办法真正的启动Linux操作系统的，会出现无法加载文件系统的错误。</p>
+<h4 id="根文件系统为什么重要？"><a href="#根文件系统为什么重要？" class="headerlink" title="根文件系统为什么重要？"></a>根文件系统为什么重要？</h4><p>根文件系统之所以在前面加一个”根“，说明它是加载其它文件系统的”根“，那么如果没有这个根，其它的文件系统也就没有办法进行加载的。</p>
+<p>根文件系统包含系统启动时所必须的目录和关键性的文件，以及使其他文件系统得以挂载（mount）所必要的文件。例如：</p>
+<ol>
+<li>init进程的应用程序必须运行在根文件系统上；</li>
+<li>根文件系统提供了根目录“&#x2F;”；</li>
+<li>linux挂载分区时所依赖的信息存放于根文件系统&#x2F;etc&#x2F;fstab这个文件中；</li>
+<li>shell命令程序必须运行在根文件系统上，譬如ls、cd等命令；</li>
+</ol>
+<p>总之：一套linux体系，只有内核本身是不能工作的，必须要rootfs（上的etc目录下的配置文件、&#x2F;bin &#x2F;sbin等目录下的shell命令，还有&#x2F;lib目录下的库文件等···）相配合才能工作。</p>
+<p>Linux启动时，第一个必须挂载的是根文件系统；若系统不能从指定设备上挂载根文件系统，则系统会出错而退出启动。成功之后可以自动或手动挂载其他的文件系统。</p>
+<h4 id="Linux内核是怎么挂载根文件系统的？"><a href="#Linux内核是怎么挂载根文件系统的？" class="headerlink" title="Linux内核是怎么挂载根文件系统的？"></a>Linux内核是怎么挂载根文件系统的？</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">init/main.c-&gt;</span><br><span class="line">　start_kernel()-&gt;vfs_caches_init(totalram_pages)–&gt;</span><br><span class="line">　　　mnt_init()–&gt;</span><br><span class="line">　　　　　<span class="comment">/* sysfs用来记录和展示linux驱动模型，sysfs先于rootfs挂载是为全面展示linux驱动模型做好准备 */</span></span><br><span class="line">　　　　　<span class="comment">/* mnt_init()调用sysfs_init()注册并挂载sysfs文件系统，然后调用kobject_create_and_add()创建fs目录 */</span></span><br><span class="line">　　　　　sysfs_init();</span><br><span class="line">　　　　　<span class="comment">/* init_rootfs()注册rootfs，然后调用init_mount_tree()挂载rootfs */</span></span><br><span class="line">　　　　　init_rootfs();</span><br><span class="line">　　　　　init_mount_tree();</span><br></pre></td></tr></table></figure>
+
+<p>1、sysfs文件系统目前还没有挂载到rootfs的某个挂载点上，后续init程序会把sysfs挂载到rootfs的sys挂载点上；</p>
+<p>2、rootfs是基于内存的文件系统，所有操作都在内存中完成；也没有实际的存储设备，所以不需要设备驱动程序的参与。基于以上原因，linux在启动阶段使用rootfs文件系统，当磁盘驱动程序和磁盘文件系统成功加载后，<strong>linux系统会将系统根目录从rootfs切换到磁盘文件系统</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">start_kernel</span><br><span class="line">　　vfs_caches_init</span><br><span class="line">　　　　mnt_init</span><br><span class="line">　　　　　　init_rootfs注册rootfs文件系统</span><br><span class="line">　　　　　　init_mount_tree 挂载rootfs文件系统</span><br><span class="line">　　　　　　　　vfs_kern_mount</span><br><span class="line">　　　　　　　　　　mount_fs</span><br><span class="line">　　　　　　　　　　　　type-&gt;mount其实是rootfs_mount</span><br><span class="line">　　　　　　　　　　　　　　mount_nodev</span><br><span class="line">　　　　　　　　　　　　　　　　fill_super 其实是ramfs_fill_super</span><br><span class="line">　　　　　　　　　　　　　　　　　　inode = ramfs_get_inode(sb, <span class="literal">NULL</span>, S_IFDIR | fsi-&gt;mount_opts.mode, <span class="number">0</span>);</span><br><span class="line">　　　　　　　　　　　　　　　　　　sb-&gt;s_root = d_make_root(inode);</span><br><span class="line">　　　　　　　　　　　　　　　　　　　　<span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">qstr</span> <span class="title">name</span> =</span> QSTR_INIT(“/”, <span class="number">1</span>);[<span class="number">1</span>*]</span><br><span class="line">　　　　　　　　　　　　　　　　　　　　__d_alloc(root_inode-&gt;i_sb, &amp;name);</span><br><span class="line">　　　　　　　　　　…</span><br><span class="line">　　　　　　　　　　mnt-&gt;mnt.mnt_root = root;[<span class="number">2</span>*]</span><br><span class="line">　　　　　　　　　　mnt-&gt;mnt.mnt_sb = root-&gt;d_sb;[<span class="number">3</span>*]</span><br><span class="line">　　　　　　　　　　mnt-&gt;mnt_mountpoint = mnt-&gt;mnt.mnt_root;[<span class="number">4</span>*]</span><br><span class="line">　　　　　　　　　　mnt-&gt;mnt_parent = mnt;[<span class="number">5</span>*]</span><br><span class="line">root.mnt = mnt;</span><br><span class="line">　　　　　　　　root.dentry = mnt-&gt;mnt_root;</span><br><span class="line">　　　　　　　　mnt-&gt;mnt_flags |= MNT_LOCKED;</span><br><span class="line">　　　　　　　　set_fs_pwd(current-&gt;fs, &amp;root);</span><br><span class="line">　　　　　　　　set_fs_root(current-&gt;fs, &amp;root);</span><br><span class="line">　　…</span><br><span class="line">　　rest_init</span><br><span class="line">　　<span class="title function_">kernel_thread</span><span class="params">(kernel_init, <span class="literal">NULL</span>, CLONE_FS)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在执行kernel_init之前，会建立roofs文件系统。</p>
+<p>[1*]处设置了根目录的名字为“&#x2F;”； </p>
+<p>[2*]处设置了vfsmount中的root目录； </p>
+<p>[3*]处设置了vfsmount中的超级块； </p>
+<p>[4*]处设置了vfsmount中的文件挂载点，指向了自己； </p>
+<p>[5*]处设置了vfsmount中的父文件系统的vfsmount为自己；</p>
+<h4 id="根文件系统各个常用目录简介"><a href="#根文件系统各个常用目录简介" class="headerlink" title="根文件系统各个常用目录简介"></a>根文件系统各个常用目录简介</h4><p>正常来说，根文件系统至少包括以下目录：</p>
+<ul>
+<li>&#x2F;etc&#x2F;：存储重要的配置文件。 </li>
+<li>&#x2F;bin&#x2F;：存储常用且开机时必须用到的执行文件。 </li>
+<li>&#x2F;sbin&#x2F;：存储着开机过程中所需的系统执行文件。 </li>
+<li>&#x2F;lib&#x2F;：存储&#x2F;bin&#x2F;及&#x2F;sbin&#x2F;的执行文件所需的链接库，以及Linux的内核模块。 </li>
+<li>&#x2F;dev&#x2F;：存储设备文件。</li>
+</ul>
+<p>五大目录必须存储在根文件系统上，缺一不可。</p>
+<h3 id="分层存储"><a href="#分层存储" class="headerlink" title="分层存储"></a>分层存储</h3><p>因为镜像包含操作系统完整的 <code>root</code> 文件系统，其体积往往是庞大的，因此在 Docker 设计时，就充分利用 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Union_mount">Union FS</a> 的技术，将其设计为分层存储的架构。所以严格来说，镜像并非是像一个 <code>ISO</code> 那样的打包文件，镜像只是一个虚拟的概念，其实际体现并非由一个文件组成，而是由一组文件系统组成，或者说，由多层文件系统联合组成。</p>
+<p>镜像构建时，会一层层构建，前一层是后一层的基础。每一层构建完就不会再发生改变，后一层上的任何改变只发生在自己这一层。比如，删除前一层文件的操作，实际不是真的删除前一层的文件，而是仅在当前层标记为该文件已删除。在最终容器运行的时候，虽然不会看到这个文件，但是实际上该文件会一直跟随镜像。因此，在构建镜像的时候，需要额外小心，每一层尽量只包含该层需要添加的东西，任何额外的东西应该在该层构建结束前清理掉。</p>
+<p>分层存储的特征还使得镜像的复用、定制变的更为容易。甚至可以用之前构建好的镜像作为基础层，然后进一步添加新的层，以定制自己所需的内容，构建新的镜像。</p>
+<img src="images/Docker分层存储.jpg" alt="img" style="zoom: 67%;" />
+
+<p>下面使用redis镜像来实际查看一下镜像分层存储。执行下面的镜像分析命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ docker image inspect redis</span><br><span class="line">......</span><br><span class="line"><span class="string">&quot;RootFS&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;Type&quot;</span>: <span class="string">&quot;layers&quot;</span>,</span><br><span class="line">            <span class="string">&quot;Layers&quot;</span>: [</span><br><span class="line">                <span class="string">&quot;sha256:2edcec3590a4ec7f40cf0743c15d78fb39d8326bc029073b41ef9727da6c851f&quot;</span>,</span><br><span class="line">                <span class="string">&quot;sha256:9b24afeb7c2f21e50a686ead025823cd2c6e9730c013ca77ad5f115c079b57cb&quot;</span>,</span><br><span class="line">                <span class="string">&quot;sha256:4b8e2801e0f956a4220c32e2c8b0a590e6f9bd2420ec65453685246b82766ea1&quot;</span>,</span><br><span class="line">                <span class="string">&quot;sha256:529cdb636f61e95ab91a62a51526a84fd7314d6aab0d414040796150b4522372&quot;</span>,</span><br><span class="line">                <span class="string">&quot;sha256:9975392591f2777d6bf4d9919ad1b2c9afa12f9a9b4d260f45025ec3cc9b18ed&quot;</span>,</span><br><span class="line">                <span class="string">&quot;sha256:8e5669d8329116b8444b9bbb1663dda568ede12d3dbcce950199b582f6e94952&quot;</span></span><br><span class="line">            ]</span><br><span class="line">        &#125;,</span><br></pre></td></tr></table></figure>
+
+<p>可以看到Layers里面的内容就是具体包含的层。这些层数据存储的位置和其他信息就在上面输出的”GraphDriver”项里面：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;GraphDriver&quot;</span>: &#123;</span><br><span class="line">           <span class="string">&quot;Data&quot;</span>: &#123;</span><br><span class="line">               <span class="string">&quot;LowerDir&quot;</span>: <span class="string">&quot;/var/lib/docker/overlay2/6d1f6b0b1bedea3ba9db/diff&quot;</span>,</span><br><span class="line">               <span class="string">&quot;MergedDir&quot;</span>: <span class="string">&quot;/var/lib/docker/overlay2/6d1f6b0b1bedea3ba9db/merged&quot;</span>,</span><br><span class="line">               <span class="string">&quot;UpperDir&quot;</span>: <span class="string">&quot;/var/lib/docker/overlay2/6d1f6b0b1bedea3ba9db/diff&quot;</span>,</span><br><span class="line">               <span class="string">&quot;WorkDir&quot;</span>: <span class="string">&quot;/var/lib/docker/overlay2/6d1f6b0b1bedea3ba9db/work&quot;</span></span><br><span class="line">           &#125;,</span><br><span class="line">           <span class="string">&quot;Name&quot;</span>: <span class="string">&quot;overlay2&quot;</span></span><br><span class="line">       &#125;,</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到这里面存储的就是联合文件系统相关项的信息了。</p>
+<h3 id="Union-FS-（联合文件系统）"><a href="#Union-FS-（联合文件系统）" class="headerlink" title="Union FS （联合文件系统）"></a>Union FS （联合文件系统）</h3><p>联合文件系统（<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/UnionFS">UnionFS</a>）是一种分层、轻量级并且高性能的文件系统，它支持对文件系统的修改作为一次提交来一层层的叠加，同时可以将不同目录挂载到同一个虚拟文件系统下(unite several directories into a single virtual filesystem)。</p>
+<p>UnionFS的联合挂载技术可以在一个挂载点同时挂载多个文件系统，将挂载点的原目录与被挂载内容进行整合，使得最终可见的文件系统将会包含整合之后的各层的文件和目录。</p>
+<p>联合文件系统是 Docker 镜像的基础。镜像可以通过分层来进行继承，基于基础镜像（没有父镜像），可以制作各种具体的应用镜像。</p>
+<p>另外，不同 Docker 容器就可以共享一些基础的文件系统层，同时再加上自己独有的改动层，大大提高了存储的效率。</p>
+<p>Docker 中使用的 AUFS（Advanced Multi-Layered Unification Filesystem）就是一种联合文件系统。 <code>AUFS</code> 支持为每一个成员目录（类似 Git 的分支）设定只读（readonly）、读写（readwrite）和写出（whiteout-able）权限, 同时 <code>AUFS</code> 里有一个类似分层的概念, 对只读权限的分支可以逻辑上进行增量地修改(不影响只读部分的)。</p>
+<p>Docker 目前支持的联合文件系统包括 <code>OverlayFS</code>, <code>AUFS</code>, <code>Btrfs</code>, <code>VFS</code>, <code>ZFS</code> 和 <code>Device Mapper</code>。</p>
+<p>下面Centos发行版的overlayFS联合文件系统示意图:</p>
+<p><img src="/images/overlay2.png" alt="img"></p>
+<h3 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h3><p>镜像的定制实际上就是定制每一层所添加的配置、文件。如果我们可以把每一层修改、安装、构建、操作的命令都写入一个脚本，用这个脚本来构建、定制镜像，那么无法重复的问题、镜像构建透明性的问题、体积的问题就都会解决。这个脚本就是 Dockerfile。</p>
+<p>Dockerfile 是一个文本文件，其内包含了一条条的 **指令(Instruction)**，每一条指令构建一层，因此每一条指令的内容，就是描述该层应当如何构建。</p>
+<p>下面以定制nginx镜像为例，演示Dockerfile使用过程：</p>
+<p>在一个空白目录中，建立一个文本文件，并命名为 <code>Dockerfile</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> mynginx</span><br><span class="line">$ <span class="built_in">cd</span> mynginx</span><br><span class="line">$ <span class="built_in">touch</span> Dockerfile</span><br></pre></td></tr></table></figure>
+
+<p>其内容为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FROM nginx</span><br><span class="line">RUN <span class="built_in">echo</span> <span class="string">&#x27;&lt;h1&gt;Hello, Docker!&lt;/h1&gt;&#x27;</span> &gt; /usr/share/nginx/html/index.html</span><br></pre></td></tr></table></figure>
+
+<p>这个 Dockerfile 很简单，一共就两行。涉及到了两条指令，<code>FROM</code> 和 <code>RUN</code>。</p>
+<h2 id="三、Docker-容器"><a href="#三、Docker-容器" class="headerlink" title="三、Docker 容器"></a>三、Docker 容器</h2><p>镜像（<code>Image</code>）和容器（<code>Container</code>）的关系，就像是面向对象程序设计中的 <code>类</code> 和 <code>实例</code> 一样，镜像是静态的定义，容器是镜像运行时的实体。容器可以被创建、启动、停止、删除、暂停等。</p>
+<p>容器的实质是进程，但与直接在宿主执行的进程不同，容器进程运行于属于自己的独立的 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Linux_namespaces">命名空间</a>。因此容器可以拥有自己的 <code>root</code> 文件系统、自己的网络配置、自己的进程空间，甚至自己的用户 ID 空间。容器内的进程是运行在一个隔离的环境里，使用起来，就好像是在一个独立于宿主的系统下操作一样。这种特性使得容器封装的应用比直接在宿主运行更加安全。也因为这种隔离的特性，很多人初学 Docker 时常常会混淆容器和虚拟机。</p>
+<p>前面讲过镜像使用的是分层存储，容器也是如此。每一个容器运行时，是以镜像为基础层，在其上创建一个当前容器的存储层，我们可以称这个为容器运行时读写而准备的存储层为 <strong>容器存储层</strong>。</p>
+<p>容器存储层的生存周期和容器一样，容器消亡时，容器存储层也随之消亡。因此，任何保存于容器存储层的信息都会随容器删除而丢失。</p>
+<p>按照 Docker 最佳实践的要求，容器不应该向其存储层内写入任何数据，容器存储层要保持无状态化。所有的文件写入操作，都应该使用 <a href="">数据卷（Volume）</a>、或者 <a href="">绑定宿主目录</a>，在这些位置的读写会跳过容器存储层，直接对宿主（或网络存储）发生读写，其性能和稳定性更高。</p>
+<p><strong>数据卷</strong>的生存周期独立于容器，容器消亡，数据卷不会消亡。因此，使用数据卷后，容器删除或者重新运行之后，数据却不会丢失。</p>
+<h3 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h3><p>Namespace（命名空间）是Linux内核的一项功能，该功能对内核资源进行分区，使一组进程看到一组资源，而另一组进程看到另一组资源，就好像运行在单独的操作系统中一样。Namespace有很多种，包括下表中列出的7种。</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>隔离的资源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IPC</td>
+<td>SystemV IPC(信号量, 消息队列和共享内存) 和 POSIX message queues</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>网络设备, 网络栈, 端口等</td>
+</tr>
+<tr>
+<td>Mount</td>
+<td>文件挂载点</td>
+</tr>
+<tr>
+<td>PID</td>
+<td>进程编号</td>
+</tr>
+<tr>
+<td>User</td>
+<td>User &amp; Group IDs</td>
+</tr>
+<tr>
+<td>UTS</td>
+<td>主机名和NIS域名</td>
+</tr>
+<tr>
+<td>Cgroup</td>
+<td>cgroup的根目录</td>
+</tr>
+</tbody></table>
+<p>比较重要的是network，mount和PID namespace。</p>
+<p>每个容器都有自己单独的命名空间，运行在其中的应用都像是在独立的操作系统中运行一样。命名空间保证了容器之间彼此互不影响。</p>
+<h3 id="控制组"><a href="#控制组" class="headerlink" title="控制组"></a>控制组</h3><p>Cgroups 是 control groups 的缩写，是Linux内核提供的一种可以限制，记录，隔离进程组(process groups)所使用物理资源的机制。主要功能有：资源限制(Resource limiting)，优先级分配(Prioritization)，资源统计（Accounting)，进程控制（Control）等。只有能控制分配到容器的资源，才能避免当多个容器同时运行时的对系统资源的竞争。</p>
+<ul>
+<li>资源限制(Resource limiting): Cgroups可以对进程组使用的资源总额进行限制。如对特定的进程进行内存使用上限限制，当超出上限时，会触发OOM。</li>
+<li>优先级分配(Prioritization): 通过分配的CPU时间片数量及硬盘IO带宽大小，实际上就相当于控制了进程运行的优先级。</li>
+<li>资源统计（Accounting): Cgroups可以统计系统的资源使用量，如CPU使用时长、内存用量等等，这个功能非常适用于计费。</li>
+<li>进程控制（Control）：Cgroups可以对进程组执行挂起、恢复等操作。</li>
+</ul>
+<h3 id="容器的存储组织方式"><a href="#容器的存储组织方式" class="headerlink" title="容器的存储组织方式"></a>容器的存储组织方式</h3><p>综合考虑镜像的层级结构，以及 volume、init-layer、可读写层这些概念，一个完整的、在运行的容器的所有文件系统结构可如下图所示：</p>
+<p><img src="/images/%E5%AE%B9%E5%99%A8%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84.png" alt="容器文件系统结构"></p>
+<p>从图中我们不难看到，除了 echo hello 进程所在的 cgroups 和 namespace 环境之外，容器文件系统其实是一个相对独立的组织。可读写部分(read-write layer 以及 volumes)、init-layer、只读层(read-only layer) 这 3 部分结构共同组成了一个容器所需的下层文件系统，它们通过联合挂载的方式巧妙地表现为一层，使得容器进程对这些层的存在一无所知。</p>
+<p>rootfs 是 docker 容器在启动时<strong>内部进程可见的文件系统</strong>，即 docker 容器的根目录。当我们运行docker exec命令进入container的时候看到的文件系统就是rootfs。rootfs 通常包含一个操作系统运行所需的文件系统，例如可能包含典型的类 Unix 操作系统中的目录系统，如 &#x2F;dev、&#x2F;proc、&#x2F;bin、&#x2F;etc、&#x2F;lib、&#x2F;usr、&#x2F;tmp 及运行 docker 容器所需的配置文件、工具等。</p>
+<p>就像Linux启动会先用只读模式挂载rootfs，运行完完整性检查之后，再切换成读写模式一样。Docker deamon为container挂载rootfs时，也会先挂载为只读模式，但是与Linux做法不同的是，在挂载完只读的rootfs之后，docker deamon会利用联合挂载技术（Union Mount）在已有的rootfs上再挂一个读写层。container在运行过程中文件系统发生的变化只会写到读写层，并通过whiteout技术隐藏只读层中的旧版本文件。</p>
+<p>容器的rootfs分为三个部分:  读写层(rw)、init层(ro+wh)、只读层(ro+wh)</p>
+<p><strong>只读层</strong>对于的docker的镜像层, 这部分不可被修改.</p>
+<p><strong>init层</strong>它是一个以“-init”结尾的层，夹在只读层和读写层之间。Init 层是 Docker 项目单独生成的一个内部层，专门用来存放 &#x2F;etc&#x2F;hosts、&#x2F;etc&#x2F;resolv.conf 等信息.</p>
+<p><strong>读写层</strong>是 rootfs 最上面的一层,它的挂载方式为：rw，即 read write。在没有写入文件之前，这个目录是空的。而一旦在容器里做了写操作，你修改产生的内容就会以增量的方式出现在这个层中。 删除文件的话 ,AuFS 会在可读写层创建一个 whiteout 文件，把只读层里的文件“遮挡”起来。比如，你要删除只读层里一个名叫 foo 的文件，那么这个删除操作实际上是在可读写层创建了一个名叫.wh.foo 的文件。这样，当这两个层被联合挂载之后，foo 文件就会被.wh.foo 文件“遮挡”起来，“消失”了。这个功能，就是“ro+wh”的挂载方式，即只读 +whiteout 的含义</p>
+<p><strong>容器存储层</strong></p>
+<p>容器存储层会存储容器运行过程中产生的所有改变，对应到上边讲的rootfs的读写层。因为这一层是运行中容器与源Docker镜像唯一的不同，因此由同一个镜像创建的任意数量容器都可以共享相同的底层镜像，并且同时可以维持他们自己的独立状态。</p>
+<img src="/images/Docker容器层结构图.png" alt="Docker容器层结构图" style="zoom:50%;" />
+
+
+
+<h3 id="数据卷的实现原理"><a href="#数据卷的实现原理" class="headerlink" title="数据卷的实现原理"></a>数据卷的实现原理</h3><h4 id="Volume-挂载"><a href="#Volume-挂载" class="headerlink" title="Volume 挂载"></a>Volume 挂载</h4><p>容器技术使用了 rootfs 机制和 Mount Namespace，构建出了一个同宿主机完全隔离开的文件系统环境。这时候，我们就需要考虑这样两个问题：</p>
+<ol>
+<li>容器里进程新建的文件，怎么才能让宿主机获取到？</li>
+<li>宿主机上的文件和目录，怎么才能让容器里的进程访问到？</li>
+</ol>
+<p>这正是 Docker Volume 要解决的问题：Volume 机制，允许你将宿主机上指定的目录或者文件，挂载到容器里面进行读取和修改操作。</p>
+<p>在 Docker 项目里，它支持两种 Volume 声明方式，可以把宿主机目录挂载进容器的 &#x2F;test 目录当中：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -v /test ...</span><br><span class="line">$ docker run -v /home:/test ...</span><br></pre></td></tr></table></figure>
+
+<p>而这两种声明方式的本质，实际上是相同的：都是把一个宿主机的目录挂载进了容器的 &#x2F;test 目录。<br>只不过，在第一种情况下，由于你并没有显示声明宿主机目录，那么 Docker 就会默认在宿主机上创建一个临时目录 &#x2F;var&#x2F;lib&#x2F;docker&#x2F;volumes&#x2F;[VOLUME_ID]&#x2F;_data，然后把它挂载到容器的 &#x2F;test 目录上。而在第二种情况下，Docker 就直接把宿主机的 &#x2F;home 目录挂载到容器的 &#x2F;test 目录上.</p>
+<h4 id="绑定挂载"><a href="#绑定挂载" class="headerlink" title="绑定挂载"></a>绑定挂载</h4><p>那么，Docker 又是如何做到把一个宿主机上的目录或者文件，挂载到容器里面去呢？</p>
+<p>当容器进程被创建之后，尽管开启了 Mount Namespace，但是在它执行 chroot（或者 pivot_root）之前，容器进程一直可以看到宿主机上的整个文件系统。</p>
+<p>而宿主机上的文件系统，也自然包括了我们要使用的容器镜像。这个镜像的各个层，保存在 &#x2F;var&#x2F;lib&#x2F;docker&#x2F;aufs&#x2F;diff 目录下，在容器进程启动后，它们会被联合挂载在 &#x2F;var&#x2F;lib&#x2F;docker&#x2F;aufs&#x2F;mnt&#x2F; 目录中，这样容器所需的 rootfs 就准备好了。<br>所以，我们只需要在 rootfs 准备好之后，在执行 chroot 之前，把 Volume 指定的宿主机目录（比如 &#x2F;home 目录），挂载到指定的容器目录（比如 &#x2F;test 目录）在宿主机上对应的目录（即 &#x2F;var&#x2F;lib&#x2F;docker&#x2F;aufs&#x2F;mnt&#x2F;[可读写层 ID]&#x2F;test）上，这个 Volume 的挂载工作就完成了。</p>
+<p>更重要的是，由于执行这个挂载操作时，“容器进程”已经创建了，也就意味着此时 Mount Namespace 已经开启了。所以，这个挂载事件只在这个容器里可见。你在宿主机上，是看不见容器内部的这个挂载点的。这就保证了容器的隔离性不会被 Volume 打破。</p>
+<p>注意：这里提到的 “ 容器进程 “，是 Docker 创建的一个容器初始化进程 (dockerinit)，而不是应用进程 (ENTRYPOINT + CMD)。dockerinit 会负责完成根目录的准备、挂载设备和目录、配置 hostname 等一系列需要在容器内进行的初始化操作。最后，它通过 execv() 系统调用，让应用进程取代自己，成为容器里的 PID&#x3D;1 的进程。</p>
+<p>而这里要使用到的挂载技术，就是 Linux 的<strong>绑定挂载（bind mount）机制</strong>，对应的Linux命令为<code>mount --bind olddir newdir</code>。它的主要作用就是，允许你将一个目录或者文件，而不是整个设备，挂载到一个指定的目录上。并且，这时你在该挂载点上进行的任何操作，只是发生在被挂载的目录或者文件上，而原挂载点的内容则会被隐藏起来且不受影响。</p>
+<p>其实，如果你了解 Linux 内核的话，就会明白，<strong>绑定挂载实际上是一个 inode 替换的过程</strong>。在 Linux 操作系统中，inode 可以理解为存放文件内容的“对象”，而 dentry，也叫目录项，就是访问这个 inode 所使用的“指针”。</p>
+<p><img src="/images/Docker%E7%BB%91%E5%AE%9A%E6%95%B0%E6%8D%AE%E5%8D%B7%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="Docker volume 的实现原理(36)_linux"></p>
+<p>正如上图所示，mount –bind &#x2F;home &#x2F;test，会将 &#x2F;home 挂载到 &#x2F;test 上。其实相当于将 &#x2F;test 的 dentry，重定向到了 &#x2F;home 的 inode。这样当我们修改 &#x2F;test 目录时，实际修改的是 &#x2F;home 目录的 inode。这也就是为何，一旦执行 umount 命令，&#x2F;test 目录原先的内容就会恢复：因为修改真正发生在的，是 &#x2F;home 目录里。</p>
+<p>所以，在一个正确的时机，进行一次绑定挂载，Docker 就可以成功地将一个宿主机上的目录或文件，不动声色地挂载到容器中。</p>
+<p>这样，进程在容器里对这个 &#x2F;test 目录进行的所有操作，都实际发生在宿主机的对应目录（比如，&#x2F;home，或者 &#x2F;var&#x2F;lib&#x2F;docker&#x2F;volumes&#x2F;[VOLUME_ID]&#x2F;_data）里，而不会影响容器镜像的内容。</p>
+<p>那么，这个 &#x2F;test 目录里的内容，既然挂载在容器 rootfs 的可读写层，它会不会被 docker commit 提交掉呢？<br>也不会。因为容器的镜像操作，比如 docker commit，都是发生在宿主机空间的，而由于 Mount Namespace 的隔离作用，宿主机并不知道这个绑定挂载的存在。所以，在宿主机看来，容器中可读写层的 &#x2F;test 目录（&#x2F;var&#x2F;lib&#x2F;docker&#x2F;aufs&#x2F;mnt&#x2F;[可读写层 ID]&#x2F;test），始终是空的。</p>
+<p>不过，由于 Docker 一开始还是要创建 &#x2F;test 这个目录作为挂载点，所以执行了 docker commit 之后，你会发现新产生的镜像里，会多出来一个空的 &#x2F;test 目录。毕竟，新建目录操作，又不是挂载操作，Mount Namespace 对它可起不到“障眼法”的作用。</p>
+<h3 id="容器网络"><a href="#容器网络" class="headerlink" title="容器网络"></a>容器网络</h3><p>Docker在安装后自动提供4种网络，可以使用<code>Docker network ls</code>命令查看：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># docker network ls</span></span><br><span class="line">NETWORK ID     NAME      DRIVER    SCOPE</span><br><span class="line">0cfebacda74b   bridge    bridge    <span class="built_in">local</span></span><br><span class="line">322c4224124b   host      host      <span class="built_in">local</span></span><br><span class="line">c69dc8eed0ec   none      null      <span class="built_in">local</span></span><br></pre></td></tr></table></figure>
+
+<p>Docker使用Linux桥接，在宿主机虚拟一个Docker容器网桥(docker0)，Docker启动一个容器时会根据Docker网桥的网段分配给容器一个IP地址，称为Container-IP，同时Docker网桥是每个容器的默认网关。因为在同一宿主机内的容器都接入同一个网桥，这样容器之间就能够通过容器的Container-IP直接通信。</p>
+<h4 id="docker的4种网络模式"><a href="#docker的4种网络模式" class="headerlink" title="docker的4种网络模式"></a>docker的4种网络模式</h4><table>
+<thead>
+<tr>
+<th>网络模式</th>
+<th>配置</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>host</td>
+<td>–network host</td>
+<td>容器和宿主机共享Network namespace</td>
+</tr>
+<tr>
+<td>container</td>
+<td>–network container:NAME_OR_ID</td>
+<td>容器和另外一个容器共享Network namespace</td>
+</tr>
+<tr>
+<td>none</td>
+<td>–network none</td>
+<td>容器有独立的Network<br/>namespace，<br/>namespace，<br/>但并没有对其进行任何网络设置，<br/>如分配veth pair 和网桥连接，</td>
+</tr>
+<tr>
+<td>bridge</td>
+<td>–network bridge</td>
+<td>默认模式</td>
+</tr>
+</tbody></table>
+<p>下面是4种网络模式的示意图：</p>
+<p>​		<img src="/images/Docker%E5%9B%9B%E7%A7%8D%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%BC%8F%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="在这里插入图片描述"></p>
+<h4 id="bridge模式"><a href="#bridge模式" class="headerlink" title="bridge模式"></a>bridge模式</h4><p>当Docker进程启动时，会在主机上创建一个名为docker0的虚拟网桥，此主机上启动的Docker容器会连接到这个虚拟网桥上。虚拟网桥的工作方式和物理交换机类似，这样主机上的所有容器就通过交换机连在了一个二层网络中。</p>
+<p>从docker0子网中分配一个IP给容器使用，并设置docker0的IP地址为容器的默认网关。在主机上创建一对虚拟网卡veth pair设备，Docker将veth pair设备的一端放在新创建的容器中，并命名为eth0（容器的网卡），另一端放在主机中，以vethxxx这样类似的名字命名，并将这个网络设备加入到docker0网桥中。可以通过brctl show命令查看。</p>
+<p>bridge模式是docker的默认网络模式，不写–network参数，就是bridge模式。使用docker run -p时，docker实际是在iptables做了DNAT规则，实现端口转发功能。可以使用iptables -t nat -vnL查看。</p>
+<p>bridge模式如下图所示：</p>
+<p><img src="/images/Docker%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C-bridge%E6%A8%A1%E5%BC%8F%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="在这里插入图片描述"></p>
+<p>假设上图的docker2中运行了一个nginx，大家来想几个问题：</p>
+<ul>
+<li>同主机间两个容器间是否可以直接通信？比如在docker1上能不能直接访问到docker2的nginx站点？答：可以。</li>
+<li>在宿主机上能否直接访问到docker2的nginx站点？答：不能直接访问，需要端口映射或者配置iptables转发规则。</li>
+<li>在另一台主机上如何访问node1上的这个nginx站点呢？DNAT发布？答：为node1上的nginx容器配置端口映射。</li>
+</ul>
+<p>Docker网桥是宿主机虚拟出来的，并不是真实存在的网络设备，外部网络是无法寻址到的，这也意味着外部网络无法通过直接Container-IP访问到容器。如果容器希望外部访问能够访问到，可以通过映射容器端口到宿主主机（端口映射），即docker run创建容器时候通过 -p 或 -P 参数来启用，访问容器的时候就通过[宿主机IP]:[容器端口]访问容器。</p>
+<h5 id="端口映射"><a href="#端口映射" class="headerlink" title="端口映射"></a>端口映射</h5><p>在上文中提到了，在Docker网桥模式下，虚拟网桥Docker0不是一个实际的物理网卡，所以外部网络是访问不到容器IP地址的，外部网络要想访问到容器里面就得做端口映射。端口映射实际是在iptables做了DNAT规则，实现端口转发功能。下面我们就详细看下端口映射的细节。</p>
+<p>端口映射结构示意图：</p>
+<p><img src="/images/Docker%E7%BD%91%E6%A1%A5%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%AB%AF%E5%8F%A3%E6%98%A0%E5%B0%84%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="img"></p>
+<p>Iptables是一个复杂的存在，它里面有表（tables）、链（chains）和规则（rules）构成，我们就简单把它理解成网络数据包路由。在端口映射的时候，它负责把容器网络数据包的源地址转换为宿主机地址。</p>
+<h5 id="iptables简述"><a href="#iptables简述" class="headerlink" title="iptables简述"></a>iptables简述</h5><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/iptables">iptables</a>是Linux内核自带的包过滤防火墙，支持<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Network_address_translation">NAT</a>等诸多功能。iptables由表和规则chain概念组成，Docker中所 用的表包括filter表和nat表（参见上述命令输出结果），这也是iptables中最常用的两个表。iptables是一个复杂的存在，曾 有一本书《<a target="_blank" rel="noopener" href="http://book.douban.com/subject/2148593/">linux firewalls</a>》 专门讲解iptables，这里先借用本书 中的一幅图来描述一下ip packets在各个表和chain之间的流转过程：</p>
+<p><img src="/images/docker-single-host-networking-iptables.jpg" alt="img{500x165}"></p>
+<p>网卡收到的数据包进入到iptables后，做路由选择，本地的包通过INPUT链送往user层应用；转发到其他网口的包通过FORWARD chain；本地产生的数据包在路由选择后，通过OUTPUT chain；最后POSTROUTING chain多用于source nat转换。</p>
+<p>iptables在容器网络中最重要的两个功能：</p>
+<p>1、限制container间的通信<br>2、将container到外部网络包的源地址换成宿主主机地址(MASQUERADE)</p>
+<h5 id="Docker0的“双重身份”"><a href="#Docker0的“双重身份”" class="headerlink" title="Docker0的“双重身份”"></a>Docker0的“双重身份”</h5><p>如何理解Docker0？下图中给出了Docker0的双重身份，并对比物理交换机，来理解一下Docker0这个软网桥。</p>
+<p><img src="/images/docker-single-host-networking-docker0.jpg" alt="img{500x165}"></p>
+<p><strong>1、从容器视角，网桥（交换机）身份</strong></p>
+<p>docker0对于通过veth pair“插在”网桥上的container1和container2来说，首先就是一个二层的交换机的角色：泛洪、维护cam表，在二层转发数据包；同 时由于docker0自身也具有mac地址（这个与纯二层交换机不同），并且绑定了ip(这里是172.17.0.1)，因此在 container中还作为container default路由的默认Gateway而存在。</p>
+<p><strong>2、从宿主机视角，网卡身份</strong></p>
+<p>物理交换机提供了由硬件实现的高效的背板通道，供连接在交换机上的主机高效实现二层通信；对于开启了三层协议的物理交换机而言，其ip路由的处理 也是由物理交换机管理程序提供的。对于docker0而言，其负责处理二层交换机逻辑以及三层的处理程序其实就是宿主机上的Linux内核 tcp&#x2F;ip协议栈程序。而从宿主机来看，所有docker0从veth（只是个二层的存在，没有绑定ipv4地址）接收到的数据包都会被宿主机 看成从docker0这块网卡（第二个身份，绑定172.17.0.1)接收进来的数据包，尤其是在进入三层时，宿主机上的iptables就会对docker0进来的数据包按照rules进行相应处理（通过一些内核网络设置也可以忽略docker0 brigde数据的处理）。</p>
+<h4 id="container模式"><a href="#container模式" class="headerlink" title="container模式"></a>container模式</h4><p>这个模式指定新创建的容器和已经存在的一个容器共享一个 Network Namespace，而不是和宿主机共享。新创建的容器不会创建自己的网卡，配置自己的 IP，而是和一个指定的容器共享 IP、端口范围等。同样，两个容器除了网络方面，其他的如文件系统、进程列表等还是隔离的。两个容器的进程可以通过 lo 网卡设备通信。</p>
+<p>container模式如下图所示：</p>
+<p><img src="/images/Docker%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C-container%E6%A8%A1%E5%BC%8F%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="在这里插入图片描述"></p>
+<h4 id="host模式"><a href="#host模式" class="headerlink" title="host模式"></a>host模式</h4><p>如果启动容器的时候使用host模式，那么这个容器将不会获得一个独立的Network Namespace，而是和宿主机共用一个Network Namespace。容器将不会虚拟出自己的网卡，配置自己的IP等，而是使用宿主机的IP和端口。但是，容器的其他方面，如文件系统、进程列表等还是和宿主机隔离的。</p>
+<p>使用host模式的容器可以直接使用宿主机的IP地址与外界通信，容器内部的服务端口也可以使用宿主机的端口，不需要进行NAT，host最大的优势就是网络性能比较好，但是docker host上已经使用的端口就不能再用了，网络的隔离性不好。<br><img src="/images/Docker%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C-host%E6%A8%A1%E5%BC%8F%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="在这里插入图片描述"></p>
+<h4 id="none模式"><a href="#none模式" class="headerlink" title="none模式"></a>none模式</h4><p>使用none模式，Docker容器拥有自己的Network Namespace，但是，并不为Docker容器进行任何网络配置。也就是说，这个Docker容器没有网卡、IP、路由等信息。需要我们自己为Docker容器添加网卡、配置IP等。</p>
+<p>这种网络模式下容器只有lo回环网络，没有其他网卡。none模式可以在容器创建时通过–network none来指定。这种类型的网络没有办法联网，封闭的网络能很好的保证容器的安全性。</p>
+<p>应用场景：</p>
+<ul>
+<li><p>启动一个容器处理数据，比如转换数据格式</p>
+</li>
+<li><p>一些后台的计算和处理任务</p>
+</li>
+</ul>
+<p>none模式如下图所示：</p>
+<p><img src="/images/Docker%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C-none%E6%A8%A1%E5%BC%8F%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="在这里插入图片描述"></p>
+<h2 id="四、Docker-仓库"><a href="#四、Docker-仓库" class="headerlink" title="四、Docker 仓库"></a>四、Docker 仓库</h2><p>镜像构建完成后，可以很容易的在当前宿主机上运行，但是，如果需要在其它服务器上使用这个镜像，我们就需要一个集中的存储、分发镜像的服务，<a href="">Docker Registry</a> 就是这样的服务。</p>
+<p>一个 <strong>Docker Registry</strong> 中可以包含多个 <strong>仓库</strong>（<code>Repository</code>）；每个仓库可以包含多个 <strong>标签</strong>（<code>Tag</code>）；每个标签对应一个镜像。</p>
+<p>通常，一个仓库会包含同一个软件不同版本的镜像，而标签就常用于对应该软件的各个版本。我们可以通过 <code>&lt;仓库名&gt;:&lt;标签&gt;</code> 的格式来指定具体是这个软件哪个版本的镜像。如果不给出标签，将以 <code>latest</code> 作为默认标签。</p>
+<p>以 <a target="_blank" rel="noopener" href="https://hub.docker.com/_/ubuntu">Ubuntu 镜像</a> 为例，<code>ubuntu</code> 是仓库的名字，其内包含有不同的版本标签，如，<code>16.04</code>, <code>18.04</code>。我们可以通过 <code>ubuntu:16.04</code>，或者 <code>ubuntu:18.04</code> 来具体指定所需哪个版本的镜像。如果忽略了标签，比如 <code>ubuntu</code>，那将视为 <code>ubuntu:latest</code>。</p>
+<p>仓库名经常以 <em>两段式路径</em> 形式出现，比如 <code>jwilder/nginx-proxy</code>，前者往往意味着 Docker Registry 多用户环境下的用户名，后者则往往是对应的软件名。但这并非绝对，取决于所使用的具体 Docker Registry 的软件或服务。</p>
+<h3 id="Docker-Registry-公开服务"><a href="#Docker-Registry-公开服务" class="headerlink" title="Docker Registry 公开服务"></a>Docker Registry 公开服务</h3><p>Docker Registry 公开服务是开放给用户使用、允许用户管理镜像的 Registry 服务。一般这类公开服务允许用户免费上传、下载公开的镜像，并可能提供收费服务供用户管理私有镜像。</p>
+<h3 id="私有-Docker-Registry"><a href="#私有-Docker-Registry" class="headerlink" title="私有 Docker Registry"></a>私有 Docker Registry</h3><p>除了使用公开服务外，用户还可以在本地搭建私有 Docker Registry。Docker 官方提供了 <a target="_blank" rel="noopener" href="https://hub.docker.com/_/registry/">Docker Registry</a> 镜像，可以直接使用做为私有 Registry 服务。</p>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>上文中我们已经对Docker镜像、容器、仓库有了大致的了解，下面就让我们回顾一下Docker创建容器的完整过程，方便把所有的知识串起来。</p>
+<p>docker创建容器过程如下图所示：<br><img src="/images/Docker%E5%88%9B%E5%BB%BA%E5%AE%B9%E5%99%A8%E8%BF%87%E7%A8%8B%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="https://ithelp.ithome.com.tw/upload/images/20200912/20025481WAftFZXMHY.png"></p>
+<p>要创建Docker容器，首先得通过Docker客户端命令（一般情况）向Docker守护进程下发请求，然后守护进程会在本地检索镜像，如果没有检索到就会去远端镜像仓库拉取镜像，获得镜像后就会启动初始进程准备容器运行的文件系统、网络、可读写层等，最后启动容器应用进程替代初始化进程自身。</p>
+<h2 id="参考资料与资源汇总"><a href="#参考资料与资源汇总" class="headerlink" title="参考资料与资源汇总"></a>参考资料与资源汇总</h2><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://tonybai.com/2016/01/15/understanding-container-networking-on-single-host/">理解Docker单机容器网络</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.docker.org.cn/docker/205.html">Docker源码分析之整体架构图</a></li>
+</ul>
+<h3 id="菜鸟教程"><a href="#菜鸟教程" class="headerlink" title="菜鸟教程"></a>菜鸟教程</h3><ul>
+<li>Docker教程： <a target="_blank" rel="noopener" href="https://www.runoob.com/docker/docker-tutorial.html">https://www.runoob.com/docker/docker-tutorial.html</a></li>
+</ul>
+<h3 id="书籍"><a href="#书籍" class="headerlink" title="书籍"></a>书籍</h3><p>《Docker源码分析》</p>
+<h3 id="Docker资源"><a href="#Docker资源" class="headerlink" title="Docker资源"></a>Docker资源</h3><ul>
+<li>Docker 官方主页: <a target="_blank" rel="noopener" href="https://www.docker.com/">https://www.docker.com</a></li>
+<li>Docker 中文官网: <a target="_blank" rel="noopener" href="https://www.docker.org.cn/index.html">https://www.docker.org.cn/index.html</a></li>
+<li>Docker 官方博客: <a target="_blank" rel="noopener" href="https://blog.docker.com/">https://blog.docker.com/</a></li>
+<li>Docker 官方文档: <a target="_blank" rel="noopener" href="https://docs.docker.com/">https://docs.docker.com/</a></li>
+<li>Docker Store: <a target="_blank" rel="noopener" href="https://store.docker.com/">https://store.docker.com</a></li>
+<li>Docker Cloud: <a target="_blank" rel="noopener" href="https://cloud.docker.com/">https://cloud.docker.com</a></li>
+<li>Docker Hub: <a target="_blank" rel="noopener" href="https://hub.docker.com/">https://hub.docker.com</a></li>
+<li>Docker 的源代码仓库: <a target="_blank" rel="noopener" href="https://github.com/moby/moby">https://github.com/moby/moby</a></li>
+<li>Docker 发布版本历史: <a target="_blank" rel="noopener" href="https://docs.docker.com/release-notes/">https://docs.docker.com/release-notes/</a></li>
+<li>Docker 常见问题: <a target="_blank" rel="noopener" href="https://docs.docker.com/engine/faq/">https://docs.docker.com/engine/faq/</a></li>
+<li>Docker 远端应用 API: <a target="_blank" rel="noopener" href="https://docs.docker.com/develop/sdk/">https://docs.docker.com/develop/sdk/</a></li>
+</ul>
+<h3 id="Docker国内镜像"><a href="#Docker国内镜像" class="headerlink" title="Docker国内镜像"></a>Docker国内镜像</h3><ul>
+<li>阿里云的加速器：<a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/60750.html">https://help.aliyun.com/document_detail/60750.html</a></li>
+<li>网易加速器：<a target="_blank" rel="noopener" href="http://hub-mirror.c.163.com/">http://hub-mirror.c.163.com</a></li>
+<li>官方中国加速器：<a target="_blank" rel="noopener" href="https://registry.docker-cn.com/">https://registry.docker-cn.com</a></li>
+<li>ustc 的镜像：<a target="_blank" rel="noopener" href="https://docker.mirrors.ustc.edu.cn/">https://docker.mirrors.ustc.edu.cn</a></li>
+<li>daocloud：<a target="_blank" rel="noopener" href="https://www.daocloud.io/mirror#accelerator-doc%EF%BC%88%E6%B3%A8%E5%86%8C%E5%90%8E%E4%BD%BF%E7%94%A8%EF%BC%89">https://www.daocloud.io/mirror#accelerator-doc（注册后使用）</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/07/06/%E5%BC%82%E6%AD%A5%E6%93%8D%E4%BD%9C%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7Awaitility/" rel="prev" title="异步操作测试工具Awaitility">
+                  <i class="fa fa-chevron-left"></i> 异步操作测试工具Awaitility
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">钟镇刚</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">45k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">41 分钟</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.0/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
