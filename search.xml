@@ -1,6 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Docker容器创建过程解析</title>
+    <url>/2022/07/31/Docker%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/</url>
+    <content><![CDATA[<h2 id="一、docker-run命令的背后发生了什么？"><a href="#一、docker-run命令的背后发生了什么？" class="headerlink" title="一、docker run命令的背后发生了什么？"></a>一、docker run命令的背后发生了什么？</h2><p>平时在创建docker容器的时候会使用<code>docker run</code>命令，并给定一些参数，那么在执行<code>docker run</code>时docker在背后到底为我们做了哪些事情呢？</p>
+<h3 id="1、docker常用命令执行流程"><a href="#1、docker常用命令执行流程" class="headerlink" title="1、docker常用命令执行流程"></a>1、docker常用命令执行流程</h3><p>先来看官方给出的一张容器创建过程图：</p>
+<img src="images/docker创建容器流程图-官方.png" alt="img" style="zoom: 50%;" />
+
+<p>这张图描述了<code>docker build</code>、<code>docker pull</code>和<code>docker run</code>三个命令在Client、Docker daemon和Regitry之间的交互流程。接下来我们着重分析<code>dockr run</code>命令是如何执行的。</p>
+<span id="more"></span>
+
+<h3 id="2、docker-run命令执行流程"><a href="#2、docker-run命令执行流程" class="headerlink" title="2、docker run命令执行流程"></a>2、docker run命令执行流程</h3><p>先假设我们要创建一个ubuntu容器，那么首先会执行下面的命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -i -t ubuntu /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>执行上述命令后，docker会为我们启动一个ubuntu容器，那么docker在后台都执行了哪些动作呢？</p>
+<p>docker创建容器的大致过程可以用下面这幅图来描述：</p>
+<img src="images/docker_run大致流程.png" alt="docker_run大致流程" style="zoom: 33%;" />
+
+<p>首先你的操作系统上得要有一个docker daemon后台进程在运行，然后当执行上面这行命令时：</p>
+<p>step1  docker client(即：docker终端命令行)会向docker daemon发送请求，启动一个容器；</p>
+<p>step2  docker daemon会向host os(一般为linux)请求创建容器；</p>
+<p>step3  linux会创建一个空的容器（可以简单理解为：一个未安装操作系统的裸机，只有虚拟出来的CPU、内存等硬件资源）</p>
+<p>step4  docker daemon请检查本机是否存在docker镜像文件（可以简单理解为操作系统安装光盘），如果有，则加载到容器中（即：光盘插入裸机，准备安装操作系统）</p>
+<p>step5  将镜像文件加载到容器中（即：裸机上安装好了操作系统，不再是裸机状态）</p>
+<p>在docker完成上述步骤后，我们就得到了一个ubuntu”虚拟机”，然后就可以执行各种操作了。</p>
+<p>如果在本地没有镜像文件，那么docker回到镜像仓库下载指定得镜像，下载到本地后，再进行装载到容器的操作。这种情况下创建容器的完整流程如下图所示：</p>
+<img src="images/docker拉取镜像创建容器的大致流程.png" alt="img" style="zoom:33%;" />
+
+
+
+<p>经过上面的分析，我们已经知道了docker创建的大致流程，但是有一些细节我们目前还是不知道的。步骤1中client给docker daemon发送了什么请求？是一个请求还是多个请求？步骤2和步骤3可以看作是一个大操作——在操作系统中（一般为Linux）创建容器。创建容器肯定是要分配资源的，那么docker是怎么向操作系统申请资源的？又申请了哪些资源？步骤4比较好理解，就是在本地或远端寻找镜像文件，但是步骤5又是怎么把镜像文件加载到新创建的空容器中的呢？</p>
+<p>一番搜索后并没有得到满意的答案，为了清楚的了解上述问题，我们接下来将探索docker源码相关部分。</p>
+<h2 id="二、docker内部是怎么完成容器创建步骤的？"><a href="#二、docker内部是怎么完成容器创建步骤的？" class="headerlink" title="二、docker内部是怎么完成容器创建步骤的？"></a>二、docker内部是怎么完成容器创建步骤的？</h2><p>上一节已经梳理清楚了docker创建容器的流程，这一节我们就来探索一下docker内部是怎么完成容器创建每一个步骤的？</p>
+<h3 id="1、创建容器时，client向docker-daemon发送了什么请求？"><a href="#1、创建容器时，client向docker-daemon发送了什么请求？" class="headerlink" title="1、创建容器时，client向docker daemon发送了什么请求？"></a>1、创建容器时，client向docker daemon发送了什么请求？</h3><p>首先看一下在docker client模块中处理<code>docker run</code>命令的函数代码：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// integration/internal/container/container.go文件</span></span><br><span class="line"><span class="comment">// Run creates and start a container with the specified options</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Run</span><span class="params">(ctx context.Context, t *testing.T, client client.APIClient, ops ...<span class="keyword">func</span>(*TestContainerConfig)</span></span>) <span class="type">string</span> &#123;</span><br><span class="line">	t.Helper()</span><br><span class="line">	id := Create(ctx, t, client, ops...) <span class="comment">// step1 创建容器</span></span><br><span class="line"></span><br><span class="line">	err := client.ContainerStart(ctx, id, types.ContainerStartOptions&#123;&#125;) <span class="comment">// step2 开启容器</span></span><br><span class="line">	assert.NilError(t, err)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> id</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a href="https://www.dockone.io/article/1239">run执行流详解（以volume，network和libcontainer为线索）</a></p>
+<p>2、<a href="https://blog.csdn.net/qq_33339479/article/details/122134279">runc原理概述</a></p>
+]]></content>
+      <categories>
+        <category>编程 - docker</category>
+      </categories>
+      <tags>
+        <tag>docker容器创建</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Docker源码整体分析</title>
+    <url>/2022/07/31/Docker%E6%BA%90%E7%A0%81%E6%95%B4%E4%BD%93%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<h2 id="一、Docker总体架构"><a href="#一、Docker总体架构" class="headerlink" title="一、Docker总体架构"></a>一、Docker总体架构</h2><p>Docker对于我们使用者来说，就是一个C&#x2F;S模式的架构，但是Docker后端是一个非常松耦合的架构，每个模块都有它自己的用处，这些模块组合起来共同支撑着Docker的运行，而且这些模块可以很容易的被其他软件嵌入使用。</p>
+<p>先来看一张Docker架构图：</p>
+<img src="images/Docker总体架构图.jpg" alt="img" style="zoom: 33%;" />
+
+<span id="more"></span>
+
+<p>Docker Client就是我们使用的命令行工具<code>docker</code>，它与Docker Daemon之间使用Http进行联系，当我们使用<code>docker</code>下发容器相关的命令时，Docker Client就会给Docker Daemon发送Post请求。</p>
+<p>Docker Daemon以后台进程dockerd驻留在系统后台，它负责接收Docker Client传递过来的请求，然后封装为一个Job，在代码里面实际上一个<code>Task</code>，Task中会调度下层的网络、镜像、命令空间、进程创建等模块。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mucao@mucao-vm:~$ ps aux | grep docker</span><br><span class="line">root        1089  0.8  3.9 1456804 79428 ?       Ssl  12:31   0:01 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock</span><br></pre></td></tr></table></figure>
+
+<p>在Driver模块就是具体负责管理容器资源和容器生命周期，我理解它是一个小的调度系统，在里面又分为负责镜像管理的graphdriver、负责网络的networkdriver和负责进程创建的execdriver。</p>
+<p>最后真正负责容器运行和生命周期的是libcontainer，它里面包含cgroups、namespace、虚拟网卡等，负责和主机Linux系统打交道。</p>
+<h2 id="二、Docker各模块源码介绍"><a href="#二、Docker各模块源码介绍" class="headerlink" title="二、Docker各模块源码介绍"></a>二、Docker各模块源码介绍</h2><p>目前Docker各个模块都是在自己独立的源码仓库，并且在Docker运行时各个模块也是分块，从这个角度讲Docker不再是一个单独的软件，而是一个虚拟化系统。</p>
+<p>在Docker架构图上标注出来了模块与源码仓库对应的关系，如下图所示：</p>
+<p><img src="/images/Docker%E6%A8%A1%E5%9D%97%E4%B8%8E%E6%BA%90%E7%A0%81%E4%BB%93%E5%BA%93%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB.jpg" alt="docker模块与源码仓库对应关系"></p>
+<p>下面我们逐一来介绍：</p>
+<h3 id="1、cli"><a href="#1、cli" class="headerlink" title="1、cli"></a>1、cli</h3><p>docker client在cli仓库，地址为<a href="https://github.com/docker/cli%EF%BC%8Ccli%E4%B8%BB%E8%A6%81%E4%BE%9D%E8%B5%96%E4%BA%8E%60cobra%60%E5%AE%8C%E6%88%90%E4%B8%BB%E5%91%BD%E4%BB%A4%E5%92%8C%E5%AD%90%E5%91%BD%E4%BB%A4%E7%9A%84%E6%9E%84%E5%BB%BA%E3%80%82">https://github.com/docker/cli，cli主要依赖于`cobra`完成主命令和子命令的构建。</a></p>
+<p>下面这个是<code>docker</code>命令的入口函数代码：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// cmd/docker/docker.go文件</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	dockerCli, err := command.NewDockerCli()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Fprintln(os.Stderr, err)</span><br><span class="line">		os.Exit(<span class="number">1</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	logrus.SetOutput(dockerCli.Err())</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := runDocker(dockerCli); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> sterr, ok := err.(cli.StatusError); ok &#123;</span><br><span class="line">			<span class="keyword">if</span> sterr.Status != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">				fmt.Fprintln(dockerCli.Err(), sterr.Status)</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">// StatusError should only be used for errors, and all errors should</span></span><br><span class="line">			<span class="comment">// have a non-zero exit status, so never exit with 0</span></span><br><span class="line">			<span class="keyword">if</span> sterr.StatusCode == <span class="number">0</span> &#123;</span><br><span class="line">				os.Exit(<span class="number">1</span>)</span><br><span class="line">			&#125;</span><br><span class="line">			os.Exit(sterr.StatusCode)</span><br><span class="line">		&#125;</span><br><span class="line">		fmt.Fprintln(dockerCli.Err(), err)</span><br><span class="line">		os.Exit(<span class="number">1</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">...... 省略其他</span><br></pre></td></tr></table></figure>
+
+<p>重点在<code>rundocker</code>函数:</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// cmd/docker/docker.go文件</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">runDocker</span><span class="params">(dockerCli *command.DockerCli)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	tcmd := newDockerCommand(dockerCli)</span><br><span class="line">	</span><br><span class="line">    ...... <span class="comment">// 省略</span></span><br><span class="line">    </span><br><span class="line">	<span class="comment">// We&#x27;ve parsed global args already, so reset args to those</span></span><br><span class="line">	<span class="comment">// which remain.</span></span><br><span class="line">	cmd.SetArgs(args)</span><br><span class="line">	<span class="keyword">return</span> cmd.Execute()</span><br><span class="line">&#125;</span><br><span class="line">...... 省略其他</span><br></pre></td></tr></table></figure>
+
+<p>接下来我们看看newDockerCommand函数中做了什么事情：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// cmd/docker/docker.go文件</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newDockerCommand</span><span class="params">(dockerCli *command.DockerCli)</span></span> *cli.TopLevelCommand &#123;</span><br><span class="line">	<span class="keyword">var</span> (</span><br><span class="line">		opts    *cliflags.ClientOptions</span><br><span class="line">		flags   *pflag.FlagSet</span><br><span class="line">		helpCmd *cobra.Command</span><br><span class="line">	)</span><br><span class="line"></span><br><span class="line">	cmd := &amp;cobra.Command&#123;</span><br><span class="line">		...... <span class="comment">// 省略</span></span><br><span class="line">	&#125;</span><br><span class="line">	opts, flags, helpCmd = cli.SetupRootCommand(cmd)</span><br><span class="line">	flags.BoolP(<span class="string">&quot;version&quot;</span>, <span class="string">&quot;v&quot;</span>, <span class="literal">false</span>, <span class="string">&quot;Print version information and quit&quot;</span>)</span><br><span class="line"></span><br><span class="line">	setFlagErrorFunc(dockerCli, cmd)</span><br><span class="line"></span><br><span class="line">	setupHelpCommand(dockerCli, cmd, helpCmd)</span><br><span class="line">	setHelpFunc(dockerCli, cmd)</span><br><span class="line"></span><br><span class="line">	cmd.SetOut(dockerCli.Out())</span><br><span class="line">	commands.AddCommands(cmd, dockerCli)</span><br><span class="line"></span><br><span class="line">	cli.DisableFlagsInUseLine(cmd)</span><br><span class="line">	setValidateArgs(dockerCli, cmd)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// flags must be the top-level command flags, not cmd.Flags()</span></span><br><span class="line">	<span class="keyword">return</span> cli.NewTopLevelCommand(cmd, dockerCli, opts, flags)</span><br><span class="line">&#125;</span><br><span class="line">...... 省略其他</span><br></pre></td></tr></table></figure>
+
+<p>在这里面主要干了两件事情，一是创建cobra.Command结构体，而是注册子命令，这里面的子命令就包括<code>docker run</code>。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">main()</span><br><span class="line">|--&gt; command.NewDockerCli()</span><br><span class="line">|--&gt; runDocker(dockerCli)</span><br><span class="line">     |--&gt; newDockerCommand(dockerCli)</span><br><span class="line">     	  |--&gt; cmd := &amp;cobra.Command&#123;...&#125;</span><br><span class="line">          |--&gt; commands.AddCommands(cmd, dockerCli)</span><br><span class="line">          |    |--&gt; 注册其他命令         </span><br><span class="line">          |    |--&gt; container.NewRunCommand(dockerCli)</span><br><span class="line">          |        |--&gt; runRun(dockerCli, cmd.Flags(), &amp;opts, copts) <span class="comment">// 实际执行该函数</span></span><br><span class="line">          |             |--&gt; runContainer(...)</span><br><span class="line">          |                  |--&gt; 向daemon发送post /containers/create</span><br><span class="line">          |                  |--&gt; 向daemon发送post /containers/&#123;id&#125;/start</span><br><span class="line">          |--&gt; tcmd.Initialize()</span><br><span class="line">          |--&gt; cmd.Execute()</span><br><span class="line">      </span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2、moby"><a href="#2、moby" class="headerlink" title="2、moby"></a>2、moby</h3><p>moby中主要实现了接受请求、创建任务，然后和containerd进行交互，是docker面向用户层面的api封装。地址为<a href="https://github.com/moby/moby">https://github.com/moby/moby</a></p>
+<p><img src="/images/docker_daemon.jpg" alt="img"></p>
+<p>moby中会启动一个http server，然后注册各种路由表。</p>
+<h3 id="3、containerd"><a href="#3、containerd" class="headerlink" title="3、containerd"></a>3、containerd</h3><p>containerd在整个Docker中占有非常重要的地位，我理解它是一个调度器作用的存在，地址为<a href="https://github.com/containerd/containerd%E3%80%82%E4%B8%8B%E9%9D%A2%E6%88%91%E4%BB%AC%E7%9C%8B%E4%B8%80%E5%BC%A0%E5%AE%98%E7%BD%91%E7%BB%99%E5%87%BA%E7%9A%84containerd%E7%9A%84%E6%95%B4%E4%BD%93%E7%BB%93%E6%9E%84%E5%9B%BE%EF%BC%9A">https://github.com/containerd/containerd。下面我们看一张官网给出的containerd的整体结构图：</a></p>
+<p><img src="/images/containerd%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="containerd architecture diagram"></p>
+<p><strong>containerd</strong>可用作 Linux 和 Windows 的守护进程。它管理其主机系统的完整容器生命周期，从图像传输和存储到容器执行和监督，再到低级存储到网络附件等等。</p>
+<p>containerd中有个重要的结构<code>Task</code>，这个结构内嵌了<code>Proess</code>，也就是说可以当进程一样使用。在containerd这一层看的出来已经逐渐的和操作系统的进程融合了。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// task.go 文件</span></span><br><span class="line"><span class="comment">// Task is the executable object within containerd</span></span><br><span class="line"><span class="keyword">type</span> Task <span class="keyword">interface</span> &#123;</span><br><span class="line">	Process</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Pause suspends the execution of the task</span></span><br><span class="line">	Pause(context.Context) <span class="type">error</span></span><br><span class="line">	<span class="comment">// Resume the execution of the task</span></span><br><span class="line">	Resume(context.Context) <span class="type">error</span></span><br><span class="line">	<span class="comment">// Exec creates a new process inside the task</span></span><br><span class="line">	Exec(context.Context, <span class="type">string</span>, *specs.Process, cio.Creator) (Process, <span class="type">error</span>)</span><br><span class="line">	<span class="comment">// Pids returns a list of system specific process ids inside the task</span></span><br><span class="line">	Pids(context.Context) ([]ProcessInfo, <span class="type">error</span>)</span><br><span class="line">	<span class="comment">// Checkpoint serializes the runtime and memory information of a task into an</span></span><br><span class="line">	<span class="comment">// OCI Index that can be pushed and pulled from a remote resource.</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">// Additional software like CRIU maybe required to checkpoint and restore tasks</span></span><br><span class="line">	<span class="comment">// <span class="doctag">NOTE:</span> Checkpoint supports to dump task information to a directory, in this way,</span></span><br><span class="line">	<span class="comment">// an empty OCI Index will be returned.</span></span><br><span class="line">	Checkpoint(context.Context, ...CheckpointTaskOpts) (Image, <span class="type">error</span>)</span><br><span class="line">	<span class="comment">// Update modifies executing tasks with updated settings</span></span><br><span class="line">	Update(context.Context, ...UpdateTaskOpts) <span class="type">error</span></span><br><span class="line">	<span class="comment">// LoadProcess loads a previously created exec&#x27;d process</span></span><br><span class="line">	LoadProcess(context.Context, <span class="type">string</span>, cio.Attach) (Process, <span class="type">error</span>)</span><br><span class="line">	<span class="comment">// Metrics returns task metrics for runtime specific metrics</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">// The metric types are generic to containerd and change depending on the runtime</span></span><br><span class="line">	<span class="comment">// For the built in Linux runtime, github.com/containerd/cgroups.Metrics</span></span><br><span class="line">	<span class="comment">// are returned in protobuf format</span></span><br><span class="line">	Metrics(context.Context) (*types.Metric, <span class="type">error</span>)</span><br><span class="line">	<span class="comment">// Spec returns the current OCI specification for the task</span></span><br><span class="line">	Spec(context.Context) (*oci.Spec, <span class="type">error</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Process接口就代表着Linux操作系统中的进程，如下所示：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// process.go 文件</span></span><br><span class="line"><span class="comment">// Process represents a system process</span></span><br><span class="line"><span class="keyword">type</span> </span><br><span class="line">	Wait(context.Context) (&lt;-<span class="keyword">chan</span> ExitStatus, <span class="type">error</span>)</span><br><span class="line">	<span class="comment">// CloseIO allows various pipes to be closed on the process</span></span><br><span class="line">	CloseIO(context.Context, ...IOCloserOpts) <span class="type">error</span></span><br><span class="line">	<span class="comment">// Resize changes the width and height of the process&#x27;s terminal</span></span><br><span class="line">	Resize(ctx context.Context, w, h <span class="type">uint32</span>) <span class="type">error</span></span><br><span class="line">	<span class="comment">// IO returns the io set for the process</span></span><br><span class="line">	IO() cio.IO</span><br><span class="line">	<span class="comment">// Status returns the executing status of the process</span></span><br><span class="line">	Status(context.Context) (Status, <span class="type">error</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4、runc"><a href="#4、runc" class="headerlink" title="4、runc"></a>4、runc</h3><p>runc负责容器生命周期的管理，现在已经是作为一个独立的命令行工具发布。地址为<a href="https://github.com/opencontainers/runc%E3%80%82%E5%AE%83%E6%98%AFOCI(%E5%BC%80%E5%8F%91%E5%AE%B9%E5%99%A8%E6%A0%87%E5%87%86)%E7%9A%84%E5%AE%9E%E7%8E%B0%E3%80%82">https://github.com/opencontainers/runc。它是OCI(开发容器标准)的实现。</a></p>
+<p>它的执行流程大致如下图：</p>
+<p><img src="/images/runc_init1.jpg" alt="runc_init1"></p>
+<h2 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h2><p>我们再来总体看一下这些模块源码之间的关系。</p>
+<p><img src="/images/docker%E6%A8%A1%E5%9D%97%E6%BA%90%E7%A0%81%E4%B9%8B%E9%97%B4%E5%85%B3%E7%B3%BB.jpeg" alt="docker模块源码之间关系"></p>
+<p>各个模块的执行流程关系如下所示：</p>
+<p><img src="/images/docker%E5%90%84%E6%A8%A1%E5%9D%97%E6%89%A7%E8%A1%8C%E5%85%B3%E7%B3%BB.png" alt="这里写图片描述"></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a href="https://containerd.io/">containerd官网</a></p>
+<p>2、<a href="https://www.infoq.cn/news/docker-source-code-analysis-part1">Docker 源码分析（一）：Docker 架构</a></p>
+]]></content>
+      <categories>
+        <category>编程 - docker</category>
+      </categories>
+      <tags>
+        <tag>docker源码分析</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>异步操作测试工具Awaitility</title>
     <url>/2022/07/06/%E5%BC%82%E6%AD%A5%E6%93%8D%E4%BD%9C%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7Awaitility/</url>
     <content><![CDATA[<p>平时在写单元测试的时候，经常会遇到一些异步场景，不确定异步线程中当前的执行状态是否已经达到自己预期的观测点，这个时候我们都会使用<code>Thread.sleep(time)</code>方式武断的等待一段时间，或者自己写个while死循环来不停的检测某个条件是否满足。前一种方式会浪费测试用例执行时间，后一种方式不够优雅。awaitility工具就是用来解决这个场景的。</p>
@@ -424,7 +538,7 @@
         <category>编程 - docker</category>
       </categories>
       <tags>
-        <tag>网络</tag>
+        <tag>docker网络</tag>
       </tags>
   </entry>
   <entry>
@@ -437,10 +551,10 @@
 <li><strong>仓库（Repository）</strong>：仓库可看成一个代码控制中心，用来保存镜像。</li>
 </ul>
 <p>Docker 容器通过 Docker 镜像来创建。容器与镜像的关系类似于面向对象编程中的对象与类。</p>
-<span id="more"></span>
-
 <p>Docker 使用<strong>客户端-服务器 (C&#x2F;S) 架构模式</strong>，使用远程API来管理和创建Docker容器。<strong>TestContainer</strong>就是通过Docker Engine的API来创建和操作容器的。Docker架构模式结构如下图所示：</p>
 <p><img src="/images/Docker%E7%9A%84CS%E6%9E%B6%E6%9E%84%E5%9B%BE.png" alt="img"></p>
+<span id="more"></span>
+
 <p>下表介绍了架构模式图中涉及到的概念：</p>
 <table>
 <thead>
