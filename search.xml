@@ -15,7 +15,7 @@
 
 <p>执行上述命令后，docker会为我们启动一个ubuntu容器，那么docker在后台都执行了哪些动作呢？</p>
 <p>docker创建容器的大致过程可以用下面这幅图来描述：</p>
-<img src="images/docker_run大致流程.png" alt="docker_run大致流程" style="zoom: 33%;" />
+<img src="/images/docker_run大致流程.png" alt="docker_run大致流程" style="zoom: 33%;" />
 
 <p>首先你的操作系统上得要有一个docker daemon后台进程在运行，然后当执行上面这行命令时：</p>
 <p>step1  docker client(即：docker终端命令行)会向docker daemon发送请求，启动一个容器；</p>
@@ -25,7 +25,7 @@
 <p>step5  将镜像文件加载到容器中（即：裸机上安装好了操作系统，不再是裸机状态）</p>
 <p>在docker完成上述步骤后，我们就得到了一个ubuntu”虚拟机”，然后就可以执行各种操作了。</p>
 <p>如果在本地没有镜像文件，那么docker回到镜像仓库下载指定得镜像，下载到本地后，再进行装载到容器的操作。这种情况下创建容器的完整流程如下图所示：</p>
-<img src="images/docker拉取镜像创建容器的大致流程.png" alt="img" style="zoom:33%;" />
+<img src="/images/docker拉取镜像创建容器的大致流程.png" alt="img" style="zoom:33%;" />
 
 
 
