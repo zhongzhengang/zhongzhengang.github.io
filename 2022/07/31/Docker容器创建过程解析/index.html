@@ -27,15 +27,15 @@
 <meta property="og:site_name" content="钟镇刚的博客">
 <meta property="og:description" content="一、docker run命令的背后发生了什么？平时在创建docker容器的时候会使用docker run命令，并给定一些参数，那么在执行docker run时docker在背后到底为我们做了哪些事情呢？ 1、docker常用命令执行流程先来看官方给出的一张容器创建过程图：   这张图描述了docker build、docker pull和docker run三个命令在Client、Docker d">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2022/07/31/Docker%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/images/docker创建容器流程图-官方.png">
+<meta property="og:image" content="http://example.com/images/docker创建容器流程图-官方.png">
 <meta property="og:image" content="http://example.com/2022/07/31/Docker%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/images/docker_run大致流程.png">
 <meta property="og:image" content="http://example.com/2022/07/31/Docker%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/images/docker拉取镜像创建容器的大致流程.png">
 <meta property="article:published_time" content="2022-07-31T12:50:43.117Z">
-<meta property="article:modified_time" content="2022-07-31T13:03:17.601Z">
+<meta property="article:modified_time" content="2022-07-31T13:24:21.642Z">
 <meta property="article:author" content="钟镇刚">
 <meta property="article:tag" content="docker容器创建">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2022/07/31/Docker%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/images/docker创建容器流程图-官方.png">
+<meta name="twitter:image" content="http://example.com/images/docker创建容器流程图-官方.png">
 
 
 <link rel="canonical" href="http://example.com/2022/07/31/Docker%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/">
@@ -250,7 +250,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2022-07-31 20:50:43 / 修改时间：21:03:17" itemprop="dateCreated datePublished" datetime="2022-07-31T20:50:43+08:00">2022-07-31</time>
+      <time title="创建时间：2022-07-31 20:50:43 / 修改时间：21:24:21" itemprop="dateCreated datePublished" datetime="2022-07-31T20:50:43+08:00">2022-07-31</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -296,7 +296,7 @@
     <div class="post-body" itemprop="articleBody">
         <h2 id="一、docker-run命令的背后发生了什么？"><a href="#一、docker-run命令的背后发生了什么？" class="headerlink" title="一、docker run命令的背后发生了什么？"></a>一、docker run命令的背后发生了什么？</h2><p>平时在创建docker容器的时候会使用<code>docker run</code>命令，并给定一些参数，那么在执行<code>docker run</code>时docker在背后到底为我们做了哪些事情呢？</p>
 <h3 id="1、docker常用命令执行流程"><a href="#1、docker常用命令执行流程" class="headerlink" title="1、docker常用命令执行流程"></a>1、docker常用命令执行流程</h3><p>先来看官方给出的一张容器创建过程图：</p>
-<img src="images/docker创建容器流程图-官方.png" alt="img" style="zoom: 50%;" />
+<img src="/images/docker创建容器流程图-官方.png" alt="img" style="zoom: 50%;" />
 
 <p>这张图描述了<code>docker build</code>、<code>docker pull</code>和<code>docker run</code>三个命令在Client、Docker daemon和Regitry之间的交互流程。接下来我们着重分析<code>dockr run</code>命令是如何执行的。</p>
 <span id="more"></span>
