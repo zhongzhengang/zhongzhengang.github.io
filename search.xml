@@ -115,6 +115,67 @@
       </tags>
   </entry>
   <entry>
+    <title>Java远程调试各参数说明</title>
+    <url>/2022/08/17/Java%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%E5%90%84%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/</url>
+    <content><![CDATA[<p>首先，JAVA自身支持调试功能，并提供了一个简单的调试工具JDB，类似于功能强大的GDB，JDB也是一个字符界面的调试环境，并支持设置断点，支持线程级的调试。</p>
+<p>JAVA的调试方法如下：</p>
+<h2 id="1、首先设置JVM参数，使之工作在DEBUG模式下，加入参数："><a href="#1、首先设置JVM参数，使之工作在DEBUG模式下，加入参数：" class="headerlink" title="1、首先设置JVM参数，使之工作在DEBUG模式下，加入参数："></a>1、首先设置JVM参数，使之工作在DEBUG模式下，加入参数：</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=5432,<span class="built_in">suspend</span>=n,onthrow=java.io.IOException,launch=/sbin/echo</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>-Xdebug</code>是通知JVM工作在DEBUG模式下，<code>-Xrunjdwp</code>是通知JVM使用(java debug wire protocol)来运行调试环境。该参数同时了一系列的调试选项：</p>
+<ul>
+<li><code>transport</code>指定了调试数据的传送方式，</li>
+<li><code>dt_socket</code>是指用SOCKET模式，另有<code>dt_shmem</code>指用共享内存方式，其中，dt_shmem只适用于Windows平台。</li>
+<li><code>server</code>参数是指是否支持在server模式的VM中.</li>
+<li><code>onthrow</code>指明，当产生该类型的Exception时，JVM就会中断下来，进行调式。该参数可选。</li>
+<li><code>launch</code>指明，当JVM被中断下来时，执行的可执行程序。该参数可选</li>
+<li><code>suspend</code>指明，是否在调试客户端建立起来后，再执行JVM。</li>
+<li><code>onuncaught</code>(&#x3D;y或n)指明出现uncaught exception 后，是否中断JVM的执行.</li>
+</ul>
+<span id="more"></span>
+
+<h3 id="几个例子"><a href="#几个例子" class="headerlink" title="几个例子"></a>几个例子</h3><p>example1</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-Xrunjdwp:transport=dt_socket,server=y,address=8000</span><br></pre></td></tr></table></figure>
+
+<p>解释：在8000端口监听Socket连接，挂起VM并且不加载运行主函数直到调试请求到达</p>
+<p>example2</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-Xrunjdwp:transport=dt_shmem,server=y,<span class="built_in">suspend</span>=n</span><br></pre></td></tr></table></figure>
+
+<p>解释：选择一个可用的共享内存（因为没有指address）并监听该内存连接，同时加载运行主函数</p>
+<p>example3</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-Xrunjdwp:transport=dt_socket,address=myhost:8000</span><br></pre></td></tr></table></figure>
+
+<p>解释：连接到myhost:8000提供的调试服务（server&#x3D;n，以调试客户端存在），挂起VM并且不加载运行主函数</p>
+<p>example4</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-Xrunjdwp:transport=dt_shmem,address=mysharedmemory</span><br></pre></td></tr></table></figure>
+
+<p>解释：通过共享内存的方式连接到调试服务，挂起VM并且不加载运行主函数</p>
+<p>example5</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-Xrunjdwp: transport=dt_socket,server=y,address=8000,onthrow=java.io.IOException, launch=/usr/local/bin/debugstub</span><br></pre></td></tr></table></figure>
+
+<p>解释：等待java.io.IOException被抛出，然后挂起VM并监听8000端口连接，在接到调试请求后以命令<code>/usr/local/bin/debugstub dt_socket myhost:8000</code>执行</p>
+<p>example6</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-Xrunjdwp:transport=dt_shmem,server=y,onuncaught=y,launch=d:\bin\debugstub.exe</span><br></pre></td></tr></table></figure>
+
+<p>解释：等待一个<code>RuntimeException</code>被抛出，然后挂起VM并监听一个可用的共享内存，在接到调试请求后以命令<code>d:\bin\debugstub.exe dt_shmem &lt;address&gt;</code>执行,<code>&lt;address&gt;</code>是可用的共享内存</p>
+<h2 id="2、启动调试工具。"><a href="#2、启动调试工具。" class="headerlink" title="2、启动调试工具。"></a>2、启动调试工具。</h2><p>最简单的调试工具就是上面提到的JDB，以上述调试用JVM为例，可以用下面的命运行启动JDB：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="variable">$jdb</span> -connect com.sun.jdi.SocketAttach:port=5432,hostname=192.168.11.213</span><br></pre></td></tr></table></figure>
+
+<p>另外，还有好多的可视化调试工具，如 eclipse,jsawt等等。Eclipses可用 ant debug来建立一个调试方法。</p>
+<p>其实就是使用了JDK的<a href="https://blog.csdn.net/qq_38835878/article/details/114539300">JPDA</a>，在启动服务器（Jboss或者Tomcat等）的命令行参数里面加上：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,<span class="built_in">suspend</span>=n</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a href="https://www.iteye.com/blog/chainhou-1837059">https://www.iteye.com/blog/chainhou-1837059</a></p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>远程调试</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>异步操作测试工具Awaitility</title>
     <url>/2022/07/06/%E5%BC%82%E6%AD%A5%E6%93%8D%E4%BD%9C%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7Awaitility/</url>
     <content><![CDATA[<p>平时在写单元测试的时候，经常会遇到一些异步场景，不确定异步线程中当前的执行状态是否已经达到自己预期的观测点，这个时候我们都会使用<code>Thread.sleep(time)</code>方式武断的等待一段时间，或者自己写个while死循环来不停的检测某个条件是否满足。前一种方式会浪费测试用例执行时间，后一种方式不够优雅。awaitility工具就是用来解决这个场景的。</p>
