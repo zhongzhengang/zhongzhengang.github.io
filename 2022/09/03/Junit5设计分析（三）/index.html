@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.12.1","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="代码仓库：https:&#x2F;&#x2F;github.com&#x2F;junit-team&#x2F;junit5&#x2F; 在”Junit5设计分析（一）”和”Junit5设计分析（二）”中，我们已经梳理清楚了Junit5执行测试的主流程、测试任务发现和参数解析。下面就是进入Junit5设计分析的终极目标——Junit5顶层设计。 一、执行任务的核心类在执行测试任务的主干流程上，Launcher负责接收测试请求（request），然后">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Junit5设计分析（三）">
+<meta property="og:url" content="http://example.com/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%EF%BC%89/index.html">
+<meta property="og:site_name" content="钟镇刚的博客">
+<meta property="og:description" content="代码仓库：https:&#x2F;&#x2F;github.com&#x2F;junit-team&#x2F;junit5&#x2F; 在”Junit5设计分析（一）”和”Junit5设计分析（二）”中，我们已经梳理清楚了Junit5执行测试的主流程、测试任务发现和参数解析。下面就是进入Junit5设计分析的终极目标——Junit5顶层设计。 一、执行任务的核心类在执行测试任务的主干流程上，Launcher负责接收测试请求（request），然后">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/Junit5%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1.png">
+<meta property="og:image" content="http://example.com/images/Junit5%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E6%B5%8B%E8%AF%95%E4%BB%BB%E5%8A%A1%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="http://example.com/images/%E4%B8%89%E4%B8%AA%E5%B1%82%E6%AC%A1%E6%B5%8B%E8%AF%95%E4%BB%BB%E5%8A%A1%E5%B1%82%E6%AC%A1%E5%85%B3%E7%B3%BB.png">
+<meta property="og:image" content="http://example.com/images/Obeserver.jpg">
+<meta property="og:image" content="http://example.com/images/seq_Obeserver.jpg">
+<meta property="og:image" content="http://example.com/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%EF%BC%89/images/image-20220902111014837.png">
+<meta property="article:published_time" content="2022-09-03T04:42:38.950Z">
+<meta property="article:modified_time" content="2022-09-03T12:15:12.491Z">
+<meta property="article:author" content="钟镇刚">
+<meta property="article:tag" content="JUnit5">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/Junit5%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1.png">
+
+
+<link rel="canonical" href="http://example.com/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%EF%BC%89/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%EF%BC%89/","path":"2022/09/03/Junit5设计分析（三）/","title":"Junit5设计分析（三）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Junit5设计分析（三） | 钟镇刚的博客</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?84040c23487973dba4fe76676ed34bf5"></script>
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">钟镇刚的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%A0%B8%E5%BF%83%E7%B1%BB"><span class="nav-number">1.</span> <span class="nav-text">一、执行任务的核心类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%B5%8B%E8%AF%95%E4%BB%BB%E5%8A%A1%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">二、测试任务层次结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Junit5%E4%B8%AD%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">三、Junit5中的设计模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E8%BF%87%E6%BB%A4%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.1.</span> <span class="nav-text">1、过滤器模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%87%E6%BB%A4%E5%99%A8%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">3.1.1.</span> <span class="nav-text">过滤器模式的定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Junit5%E4%B8%AD%E8%BF%87%E6%BB%A4%E5%99%A8%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.1.2.</span> <span class="nav-text">Junit5中过滤器的实现</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.2.</span> <span class="nav-text">2、观察者模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">3.2.1.</span> <span class="nav-text">观察者模式的定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Junit5%E4%B8%AD%E8%A7%82%E5%AF%9F%E8%80%85%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.2.2.</span> <span class="nav-text">Junit5中观察者的实现</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-API%E6%B3%A8%E8%A7%A3"><span class="nav-number">4.</span> <span class="nav-text">四、@API注解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">钟镇刚</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhongzhengang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhongzhengang" rel="noopener" target="_blank">GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/mucaoyx" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;mucaoyx" rel="noopener" target="_blank">CSDN</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="钟镇刚">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="钟镇刚的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Junit5设计分析（三） | 钟镇刚的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Junit5设计分析（三）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2022-09-03 12:42:38 / 修改时间：20:15:12" itemprop="dateCreated datePublished" datetime="2022-09-03T12:42:38+08:00">2022-09-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Java-%E6%B5%8B%E8%AF%95/" itemprop="url" rel="index"><span itemprop="name">Java - 测试</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>9.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>8 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>代码仓库：<a target="_blank" rel="noopener" href="https://github.com/junit-team/junit5/">https://github.com/junit-team/junit5/</a></p>
+<p>在”Junit5设计分析（一）”和”Junit5设计分析（二）”中，我们已经梳理清楚了Junit5执行测试的主流程、测试任务发现和参数解析。下面就是进入Junit5设计分析的终极目标——<strong>Junit5顶层设计</strong>。</p>
+<h2 id="一、执行任务的核心类"><a href="#一、执行任务的核心类" class="headerlink" title="一、执行任务的核心类"></a>一、执行任务的核心类</h2><p>在执行测试任务的主干流程上，<strong>Launcher</strong>负责接收测试请求（request），然后会找到测试引擎<strong>TestEngine</strong>进行处理，测试引擎会将找到的测试任务<strong>TestTask</strong>提交给执行器<strong>HierarchicalTestExecutorService</strong>。</p>
+<p>下面这幅图展示了它们之间的合作关系：</p>
+<p><img src="/images/Junit5%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1.png" alt="Junit5源码分析-顶层设计"></p>
+<span id="more"></span>
+
+<h2 id="二、测试任务层次结构"><a href="#二、测试任务层次结构" class="headerlink" title="二、测试任务层次结构"></a>二、测试任务层次结构</h2><p>测试引擎处理测试请求的结果就是生成具有层次结构的测试任务类。其实在“Junit5设计分析（一）”的主干流程中有程序执行中的测试任务层次结构，下面单独进行展示：</p>
+<p><img src="/images/Junit5%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E6%B5%8B%E8%AF%95%E4%BB%BB%E5%8A%A1%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84.png" alt="Junit5源码分析-测试任务层次结构"></p>
+<p>测试任务一共分为三个层次，分别是：引擎层次、测试类层次、测试方法层次，它们都对应着具体的类型。下面展示这些类型的层次关系：</p>
+<p><img src="/images/%E4%B8%89%E4%B8%AA%E5%B1%82%E6%AC%A1%E6%B5%8B%E8%AF%95%E4%BB%BB%E5%8A%A1%E5%B1%82%E6%AC%A1%E5%85%B3%E7%B3%BB.png" alt="image-20220829110813045"></p>
+<p>从集成层次图中可以看到<code>JupiterEngineDescriptor</code>、<code>ClassTestDescriptor</code>、<code>TestMethodTestDescriptor</code>三个类都实现了<code>TestDescripter</code>接口，因此它们可以描述测试任务，只是对应的描述层次不同。并且，它们三个类都实现了<code>Node</code>接口，因此它们可以像树结构一样被组织起来。</p>
+<h2 id="三、Junit5中的设计模式"><a href="#三、Junit5中的设计模式" class="headerlink" title="三、Junit5中的设计模式"></a>三、Junit5中的设计模式</h2><h3 id="1、过滤器模式"><a href="#1、过滤器模式" class="headerlink" title="1、过滤器模式"></a>1、过滤器模式</h3><p>在”Junit5设计分析（二）”中，我们跟读<code>DefaultLauncher#discoverRoot</code>方法的时候，看到了过滤器的应用。下面是对应的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// org.junit.platform.launcher.core.DefaultLauncher#discoverRoot方法</span></span><br><span class="line"><span class="keyword">private</span> Root <span class="title function_">discoverRoot</span><span class="params">(LauncherDiscoveryRequest discoveryRequest, String phase)</span> &#123;</span><br><span class="line">    <span class="comment">// 1、创建Root对象</span></span><br><span class="line">    <span class="type">Root</span> <span class="variable">root</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Root</span>();</span><br><span class="line">	<span class="comment">// 2、从每一个TestEngine中发现TestDescriptor</span></span><br><span class="line">    <span class="keyword">for</span> (TestEngine testEngine : <span class="built_in">this</span>.testEngines) &#123;</span><br><span class="line">        <span class="comment">// @formatter:off</span></span><br><span class="line">        <span class="type">boolean</span> <span class="variable">engineIsExcluded</span> <span class="operator">=</span> discoveryRequest.getEngineFilters().stream()</span><br><span class="line">            .map(engineFilter -&gt; engineFilter.apply(testEngine)) <span class="comment">// ref-1</span></span><br><span class="line">            .anyMatch(FilterResult::excluded);</span><br><span class="line">        <span class="comment">// @formatter:on</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (engineIsExcluded) &#123;</span><br><span class="line">            ...... 打印日志</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">		...... 打印日志</span><br><span class="line">		<span class="comment">// 2.1 发现TestDescriptor</span></span><br><span class="line">        Optional&lt;TestDescriptor&gt; engineRoot = discoverEngineRoot(testEngine, discoveryRequest);</span><br><span class="line">        <span class="comment">// 2、2 将发现的发现TestDescriptor添加到root对象中</span></span><br><span class="line">        engineRoot.ifPresent(rootDescriptor -&gt; root.add(testEngine, rootDescriptor));</span><br><span class="line">    &#125;</span><br><span class="line">    root.applyPostDiscoveryFilters(discoveryRequest);</span><br><span class="line">    <span class="comment">// 3、删除掉没有测试任务的TestDescriptor</span></span><br><span class="line">    root.prune();</span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>ref-1</code>处应用了过滤器。我们先来看看网上给出的过滤器模式的定义，然后再来看看Junit5中过滤器的实现，我觉得这样来学习过滤器模式更有实践意义。</p>
+<h4 id="过滤器模式的定义"><a href="#过滤器模式的定义" class="headerlink" title="过滤器模式的定义"></a>过滤器模式的定义</h4><p>过滤器模式（Filter Pattern）或标准模式（Criteria Pattern）是一种设计模式，这种模式允许开发人员使用不同的标准来过滤一组对象，通过逻辑运算以解耦的方式把它们连接起来。这种类型的设计模式属于结构型模式，它结合多个标准来获得单一标准。</p>
+<h4 id="Junit5中过滤器的实现"><a href="#Junit5中过滤器的实现" class="headerlink" title="Junit5中过滤器的实现"></a>Junit5中过滤器的实现</h4><p>其实过滤器模式比较简单，在Junit5中首先定义了一个<code>Filter</code>，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.junit.platform.engine;</span><br><span class="line"></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="meta">@API(status = STABLE, since = &quot;1.0&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Filter</span>&lt;T&gt; &#123;</span><br><span class="line">    ...... 省略其他静态方法</span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Apply this filter to the supplied object.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	FilterResult <span class="title function_">apply</span><span class="params">(T object)</span>; <span class="comment">// ref-2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>网上查到的过滤器模式，是传入一组对象，然后调用过滤方法，返回一组结果对象。Junit5的<code>Filter</code>是在过滤单个对象，然后生成过滤结果。</p>
+<p>我们再来看一个实现，加深一下理解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.junit.platform.launcher;</span><br><span class="line"></span><br><span class="line"><span class="meta">@API(status = STABLE, since = &quot;1.0&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EngineFilter</span> <span class="keyword">implements</span> <span class="title class_">Filter</span>&lt;TestEngine&gt; &#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> EngineFilter <span class="title function_">includeEngines</span><span class="params">(String... engineIds)</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> includeEngines(Arrays.asList(engineIds));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> EngineFilter <span class="title function_">includeEngines</span><span class="params">(List&lt;String&gt; engineIds)</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">EngineFilter</span>(engineIds, Type.INCLUDE);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> EngineFilter <span class="title function_">excludeEngines</span><span class="params">(String... engineIds)</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> excludeEngines(Arrays.asList(engineIds));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> EngineFilter <span class="title function_">excludeEngines</span><span class="params">(List&lt;String&gt; engineIds)</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">EngineFilter</span>(engineIds, Type.EXCLUDE);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> List&lt;String&gt; engineIds;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> Type type;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="title function_">EngineFilter</span><span class="params">(List&lt;String&gt; engineIds, Type type)</span> &#123;</span><br><span class="line">		<span class="built_in">this</span>.engineIds = validateAndTrim(engineIds);</span><br><span class="line">		<span class="built_in">this</span>.type = type;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> FilterResult <span class="title function_">apply</span><span class="params">(TestEngine testEngine)</span> &#123;</span><br><span class="line">		Preconditions.notNull(testEngine, <span class="string">&quot;TestEngine must not be null&quot;</span>);</span><br><span class="line">		<span class="type">String</span> <span class="variable">engineId</span> <span class="operator">=</span> testEngine.getId();</span><br><span class="line">		Preconditions.notBlank(engineId, <span class="string">&quot;TestEngine ID must not be null or blank&quot;</span>);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">this</span>.type == Type.INCLUDE) &#123; <span class="comment">// ref-3</span></span><br><span class="line">			<span class="keyword">return</span> includedIf(<span class="built_in">this</span>.engineIds.stream().anyMatch(engineId::equals), <span class="comment">//</span></span><br><span class="line">				() -&gt; String.format(<span class="string">&quot;Engine ID [%s] is in included list [%s]&quot;</span>, engineId, <span class="built_in">this</span>.engineIds), <span class="comment">//</span></span><br><span class="line">				() -&gt; String.format(<span class="string">&quot;Engine ID [%s] is not in included list [%s]&quot;</span>, engineId, <span class="built_in">this</span>.engineIds));</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> includedIf(<span class="built_in">this</span>.engineIds.stream().noneMatch(engineId::equals), <span class="comment">//</span></span><br><span class="line">				() -&gt; String.format(<span class="string">&quot;Engine ID [%s] is not in excluded list [%s]&quot;</span>, engineId, <span class="built_in">this</span>.engineIds), <span class="comment">//</span></span><br><span class="line">				() -&gt; String.format(<span class="string">&quot;Engine ID [%s] is in excluded list [%s]&quot;</span>, engineId, <span class="built_in">this</span>.engineIds));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>EngineFilter#apply</code>方法内的<code>ref-3</code>处，会依据当前过滤类型是包含还是排除来使用保存的一组“标准”（<code>engineIds</code>）对目标（<code>testEngine</code>）进行过滤。</p>
+<p>我们可以看到<code>EngineFilter</code>代码逻辑比较简单，但是它提供的静态工厂方法和<code>includedIf</code>封装都值得学习，这些封装使得<code>EngineFilter</code>更加易用且阅读清晰。</p>
+<p>小总结：<strong>过滤器模式就是从一组对象中挑选出满足要求的对象</strong>。</p>
+<h3 id="2、观察者模式"><a href="#2、观察者模式" class="headerlink" title="2、观察者模式"></a>2、观察者模式</h3><p>当单元测试执行的时候，会产生很多的变化，这些变化就形成了事件，如果有关心这些变化的对象，那么它们就可以向<code>Launcher</code>中注册监听器，当事件发生的时候会被通知到。</p>
+<p>我们先来看看Junit5中使用观察者模式的地方。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// org.junit.platform.engine.support.hierarchical.NodeTestTask#executeRecursively 方法</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">executeRecursively</span><span class="params">()</span> &#123;</span><br><span class="line">    taskContext.getListener().executionStarted(testDescriptor); <span class="comment">// ref-4</span></span><br><span class="line">    started = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">    throwableCollector.execute(() -&gt; &#123;</span><br><span class="line">        <span class="comment">// @formatter:off</span></span><br><span class="line">        List&lt;NodeTestTask&lt;C&gt;&gt; children = testDescriptor.getChildren().stream()</span><br><span class="line">            .map(descriptor -&gt; <span class="keyword">new</span> <span class="title class_">NodeTestTask</span>&lt;C&gt;(taskContext, descriptor))</span><br><span class="line">            .collect(toCollection(ArrayList::<span class="keyword">new</span>));</span><br><span class="line">        <span class="comment">// @formatter:on</span></span><br><span class="line"></span><br><span class="line">        context = node.before(context);</span><br><span class="line"></span><br><span class="line">        <span class="type">DynamicTestExecutor</span> <span class="variable">dynamicTestExecutor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DefaultDynamicTestExecutor</span>();</span><br><span class="line">        context = node.execute(context, dynamicTestExecutor);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!children.isEmpty()) &#123;</span><br><span class="line">            children.forEach(child -&gt; child.setParentContext(context));</span><br><span class="line">            taskContext.getExecutorService().invokeAll(children);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        dynamicTestExecutor.awaitFinished();</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    throwableCollector.execute(() -&gt; node.after(context));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>NodeTestTask#executeRecursively</code>在”Junit5设计分析（一）”中就分析过了，不过当时是分析的Junit5单元测试主干流程。今天我们看看<code>ref-4</code>处的监听器调用部分。</p>
+<p><code>taskContext.getListener()</code>返回的是<code>EngineExecutionListener</code>，然后调用它的<code>executionStarted</code>方法，通知测试开始执行了。</p>
+<p>还是和前面一样，我们先看看观察者模式的定义，然后再看看Junit5中的实际实现。</p>
+<h4 id="观察者模式的定义"><a href="#观察者模式的定义" class="headerlink" title="观察者模式的定义"></a>观察者模式的定义</h4><p><strong>模式动机</strong></p>
+<p>建立一种对象与对象之间的依赖关系，一个对象发生改变时将自动通知其他对象，其他对象将相应做出反应。在此，发生改变的对象称为观察目标，而被通知的对象称为观察者，一个观察目标可以对应多个观察者，而且这些观察者之间没有相互联系，可以根据需要增加和删除观察者，使得系统更易于扩展，这就是观察者模式的模式动机。</p>
+<p><strong>模式定义</strong></p>
+<p>观察者模式(Observer Pattern)：定义对象间的一种一对多依赖关系，使得每当一个对象状态发生改变时，其相关依赖对象皆得到通知并被自动更新。观察者模式又叫做发布-订阅（Publish&#x2F;Subscribe）模式、模型-视图（Model&#x2F;View）模式、源-监听器（Source&#x2F;Listener）模式或从属者（Dependents）模式。</p>
+<p>观察者模式是一种对象行为型模式。</p>
+<p><strong>模式结构</strong></p>
+<p>观察者模式包含如下角色：</p>
+<ul>
+<li>Subject: 目标</li>
+<li>ConcreteSubject: 具体目标</li>
+<li>Observer: 观察者</li>
+<li>ConcreteObserver: 具体观察者</li>
+</ul>
+<p><img src="/images/Obeserver.jpg" alt="观察者模式_模式结构"></p>
+<p>(图片来自于网络)</p>
+<p><strong>时序图</strong></p>
+<p><img src="/images/seq_Obeserver.jpg" alt="观察者模式_时序图"></p>
+<p>当目标发生状态改变的时候，会通知观察者。</p>
+<h4 id="Junit5中观察者的实现"><a href="#Junit5中观察者的实现" class="headerlink" title="Junit5中观察者的实现"></a>Junit5中观察者的实现</h4><p>我们先来看看Junit5中观察者接口的定义：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.junit.platform.engine;</span><br><span class="line"></span><br><span class="line"><span class="meta">@API(status = STABLE, since = &quot;1.0&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">EngineExecutionListener</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">void</span> <span class="title function_">dynamicTestRegistered</span><span class="params">(TestDescriptor testDescriptor)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">void</span> <span class="title function_">executionSkipped</span><span class="params">(TestDescriptor testDescriptor, String reason)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">void</span> <span class="title function_">executionStarted</span><span class="params">(TestDescriptor testDescriptor)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">void</span> <span class="title function_">executionFinished</span><span class="params">(TestDescriptor testDescriptor, TestExecutionResult testExecutionResult)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">void</span> <span class="title function_">reportingEntryPublished</span><span class="params">(TestDescriptor testDescriptor, ReportEntry entry)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>EngineExecutionListener</code>中并没有定义独立的事件类，而是不同的事件对应着不同的方法，<code>executionSkipped</code>、<code>executionStarted</code>和<code>executionFinished</code>三个方法最明显。</p>
+<p>当有事件发生的时候，就会触发对应的方法，然后把相关的对象传递给具体的实现类。我们接下来看看都有哪些实现类：</p>
+<img src="images/image-20220902111014837.png" alt="image-20220902111014837" style="zoom:50%;" />
+
+<p>在IDEA中看，只有一个实现类，我们来详细看看这个实现类的细节：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.junit.platform.launcher.core;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ExecutionListenerAdapter</span> <span class="keyword">implements</span> <span class="title class_">EngineExecutionListener</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> TestPlan testPlan;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> TestExecutionListener testExecutionListener;</span><br><span class="line"></span><br><span class="line">	ExecutionListenerAdapter(TestPlan testPlan, TestExecutionListener testExecutionListener) &#123;</span><br><span class="line">		<span class="built_in">this</span>.testPlan = testPlan;</span><br><span class="line">		<span class="built_in">this</span>.testExecutionListener = testExecutionListener;</span><br><span class="line">	&#125;</span><br><span class="line">	...... <span class="comment">// 所有的方法实现都委派给了testExecutionListener</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>ExecutionListenerAdapter</code>是一个适配器类，真正执行事件处理的是<code>TestExecutionListener</code>，这个类其实是接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.junit.platform.launcher;</span><br><span class="line"></span><br><span class="line"><span class="meta">@API(status = STABLE, since = &quot;1.0&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">TestExecutionListener</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">testPlanExecutionStarted</span><span class="params">(TestPlan testPlan)</span> &#123;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">testPlanExecutionFinished</span><span class="params">(TestPlan testPlan)</span> &#123;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">dynamicTestRegistered</span><span class="params">(TestIdentifier testIdentifier)</span> &#123;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">executionSkipped</span><span class="params">(TestIdentifier testIdentifier, String reason)</span> &#123;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">executionStarted</span><span class="params">(TestIdentifier testIdentifier)</span> &#123;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">executionFinished</span><span class="params">(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult)</span> &#123;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">reportingEntryPublished</span><span class="params">(TestIdentifier testIdentifier, ReportEntry entry)</span> &#123;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这个接口里面的方法是和<code>EngineExecutionListener</code>接口基本一致，就多出来了<code>testPlanExecutionStarted</code>和<code>testPlanExecutionFinished</code>方法。</p>
+<p>在使用IDEA执行单元测试的时候，传入进来的实现类是<code>JUnit5TestExecutionListener</code>，它会处理相应的事件，并把结果在IDEA上呈现。</p>
+<p>这儿需要注意的是Junit5应该是遵循了分层设计，<code>TestExecutionListener</code>和<code>EngineExecutionListener</code>接口功能几乎一致，但是它们却是在不同层次的测试执行事件观察者抽象，<code>TestExecutionListener</code>是在<code>Launcher</code>层面进行的抽象，层次更高，<code>EngineExecutionListener</code>是在测试执行引擎层面的抽象。</p>
+<p>在Junit5中被观察的目标是<code>NodeTestTask</code>，它在执行测试动作的时候会通知观察者，比如<code>ref-4</code>处代码就是在通知观察者测试开始执行了。</p>
+<h2 id="四、-API注解"><a href="#四、-API注解" class="headerlink" title="四、@API注解"></a>四、@API注解</h2><p>在贴出来的类层次图和一些类的源码中都有<code>@API</code>注解，我们接下来就探索一下这个注解。</p>
+<p>该项目的地址为：<a target="_blank" rel="noopener" href="https://github.com/apiguardian-team/apiguardian">https://github.com/apiguardian-team/apiguardian</a></p>
+<p>这是一个非常小的项目，它的作用也是非常的明确，我们直接来看看它的类注释上的内容：</p>
+<blockquote>
+<p>@API is used to annotate public types, methods, constructors, and fields within a framework or application in order to publish their status and level of stability and to indicate how they are intended to be used by consumers of the API.</p>
+<p>If @API is present on a type, it is considered to hold for all public members of the type as well. However, a member of such an annotated type is allowed to declare a API.Status of lower stability. For example, a class annotated with @API(status &#x3D; STABLE) may declare a constructor for internal usage that is annotated with @API(status &#x3D; INTERNAL).</p>
+</blockquote>
+<p>简单的说，这个注解就是用来标注接口和类的稳定性的，方便使用者明白类和接口的意图。</p>
+<p>然后我们来看看Junit5中的一个实际例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.junit.platform.launcher;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 标识出这个接口是稳定的，可以被外部使用，status最后被修改时接口的版本为1.0</span></span><br><span class="line"><span class="meta">@API(status = STABLE, since = &quot;1.0&quot;)</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">TestExecutionListener</span> &#123;</span><br><span class="line">    ...... 省略</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>写了三篇文章来分析Junit5，先是分析了Junit5单元测试执行的主干流程，然后分析了测试任务发现过程、参数解析过程，最后分析了执行任务的核心类、测试任务层次结构和涉及到的设计模式。基本上算是把Junit5分析透彻了，从中学习到了很多的知识，特别时接口的分层、异常处理技巧，还有过滤器模式和观察者模式的应用。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a target="_blank" rel="noopener" href="https://design-patterns.readthedocs.io/zh_CN/latest/behavioral_patterns/observer.html#id16">观察者模式</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JUnit5/" rel="tag"># JUnit5</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/08/19/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/" rel="prev" title="Junit5设计分析（一）">
+                  <i class="fa fa-chevron-left"></i> Junit5设计分析（一）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="next" title="Junit5设计分析（二）">
+                  Junit5设计分析（二） <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">钟镇刚</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">145k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">2:12</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.0/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
