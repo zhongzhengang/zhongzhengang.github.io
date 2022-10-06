@@ -152,18 +152,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -200,6 +200,336 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="钟镇刚">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="钟镇刚的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 钟镇刚的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%EF%BC%89/" class="post-title-link" itemprop="url">Junit5设计分析（三）</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2022-09-03 12:42:38 / 修改时间：20:15:12" itemprop="dateCreated datePublished" datetime="2022-09-03T12:42:38+08:00">2022-09-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Java-%E6%B5%8B%E8%AF%95/" itemprop="url" rel="index"><span itemprop="name">Java - 测试</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>9.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>8 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>代码仓库：<a target="_blank" rel="noopener" href="https://github.com/junit-team/junit5/">https://github.com/junit-team/junit5/</a></p>
+<p>在”Junit5设计分析（一）”和”Junit5设计分析（二）”中，我们已经梳理清楚了Junit5执行测试的主流程、测试任务发现和参数解析。下面就是进入Junit5设计分析的终极目标——<strong>Junit5顶层设计</strong>。</p>
+<h2 id="一、执行任务的核心类"><a href="#一、执行任务的核心类" class="headerlink" title="一、执行任务的核心类"></a>一、执行任务的核心类</h2><p>在执行测试任务的主干流程上，<strong>Launcher</strong>负责接收测试请求（request），然后会找到测试引擎<strong>TestEngine</strong>进行处理，测试引擎会将找到的测试任务<strong>TestTask</strong>提交给执行器<strong>HierarchicalTestExecutorService</strong>。</p>
+<p>下面这幅图展示了它们之间的合作关系：</p>
+<p><img src="/images/Junit5%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1.png" alt="Junit5源码分析-顶层设计"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%EF%BC%89/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/08/19/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="钟镇刚">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="钟镇刚的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 钟镇刚的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/08/19/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">Junit5设计分析（一）</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-08-19 13:58:53" itemprop="dateCreated datePublished" datetime="2022-08-19T13:58:53+08:00">2022-08-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-09-03 16:15:31" itemprop="dateModified" datetime="2022-09-03T16:15:31+08:00">2022-09-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Java-%E6%B5%8B%E8%AF%95/" itemprop="url" rel="index"><span itemprop="name">Java - 测试</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>11k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>10 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>代码仓库：<a target="_blank" rel="noopener" href="https://github.com/junit-team/junit5/">https://github.com/junit-team/junit5/</a></p>
+<p>提到Java的单元测试，其实自己很熟悉了，从开始工作的时候就被要求写单元测试，所用到的框架就是<code>Junit</code>了，它最新的版本已经来到了5。</p>
+<p>在平时写Java单元测试的时候，大致流程就是创建个测试类，在里面写个不要参数并且返回<code>void</code>的方法，然后在方法上面添加<code>@Test</code>注解。有了这三步，测试方法就能跑起来了，只不过啥用也没有。但是在测试方法里面写上调用业务的方法，然后再使用<code>assert</code>断言，就多增加了这两步，一个完整、有价值的单元测试就完成了。</p>
+<p>在Junit5的帮助下，只需要上面这流畅的五步就可以写好单元测试了，反正我在平时根本不需要去注意Junit5的细节和其他知识就能完成单元测试的编写了。</p>
+<p>现在仔细想象，这难道不是Junit5软件设计成功的地方吗？用户只需要知道必要的极少知识就能完成单元测试——Junit5软件的目标。</p>
+<p>之前也听人说过Junit的代码写的非常好，再加之上面这些原因，我就来阅读一下Junit5的源码，希望有所收获。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/08/19/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/08/17/Java%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%E5%90%84%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="钟镇刚">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="钟镇刚的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 钟镇刚的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/08/17/Java%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%E5%90%84%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/" class="post-title-link" itemprop="url">Java远程调试各参数说明</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-08-17 19:47:35" itemprop="dateCreated datePublished" datetime="2022-08-17T19:47:35+08:00">2022-08-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>2 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>首先，JAVA自身支持调试功能，并提供了一个简单的调试工具JDB，类似于功能强大的GDB，JDB也是一个字符界面的调试环境，并支持设置断点，支持线程级的调试。</p>
+<p>JAVA的调试方法如下：</p>
+<h2 id="1、首先设置JVM参数，使之工作在DEBUG模式下，加入参数："><a href="#1、首先设置JVM参数，使之工作在DEBUG模式下，加入参数：" class="headerlink" title="1、首先设置JVM参数，使之工作在DEBUG模式下，加入参数："></a>1、首先设置JVM参数，使之工作在DEBUG模式下，加入参数：</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=5432,<span class="built_in">suspend</span>=n,onthrow=java.io.IOException,launch=/sbin/echo</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>-Xdebug</code>是通知JVM工作在DEBUG模式下，<code>-Xrunjdwp</code>是通知JVM使用(java debug wire protocol)来运行调试环境。该参数同时了一系列的调试选项：</p>
+<ul>
+<li><code>transport</code>指定了调试数据的传送方式，</li>
+<li><code>dt_socket</code>是指用SOCKET模式，另有<code>dt_shmem</code>指用共享内存方式，其中，dt_shmem只适用于Windows平台。</li>
+<li><code>server</code>参数是指是否支持在server模式的VM中.</li>
+<li><code>onthrow</code>指明，当产生该类型的Exception时，JVM就会中断下来，进行调式。该参数可选。</li>
+<li><code>launch</code>指明，当JVM被中断下来时，执行的可执行程序。该参数可选</li>
+<li><code>suspend</code>指明，是否在调试客户端建立起来后，再执行JVM。</li>
+<li><code>onuncaught</code>(&#x3D;y或n)指明出现uncaught exception 后，是否中断JVM的执行.</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/08/17/Java%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%E5%90%84%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -966,14 +1296,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">178k</span>
+    <span title="站点总字数">213k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">2:42</span>
+    <span title="站点阅读时长">3:13</span>
   </span>
 </div>
 <div class="busuanzi-count">

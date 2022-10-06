@@ -20,32 +20,31 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.12.1","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="一、docker run命令的背后发生了什么？平时在创建docker容器的时候会使用docker run命令，并给定一些参数，那么在执行docker run时docker在背后到底为我们做了哪些事情呢？ 1、docker常用命令执行流程先来看官方给出的一张容器创建过程图：   这张图描述了docker build、docker pull和docker run三个命令在Client、Docker d">
+    <meta name="description" content="一、JDBC的定义Java 数据库连接 (JDBC) API 提供来自 Java 编程语言的通用数据访问。使用 JDBC API，您几乎可以访问任何数据源，从关系数据库到电子表格和平面文件（flat files）。 JDBC 技术还提供了一个通用基础，可以在此基础上构建工具和替代接口。 JDBC Api由下面两个包组成：  java.sql javax.sql  当你下载Java SE 8 的时候">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Docker容器创建过程解析">
-<meta property="og:url" content="http://example.com/2022/07/31/Docker%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:title" content="Jdbc基础知识">
+<meta property="og:url" content="http://example.com/2022/10/06/Jdbc%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/index.html">
 <meta property="og:site_name" content="钟镇刚的博客">
-<meta property="og:description" content="一、docker run命令的背后发生了什么？平时在创建docker容器的时候会使用docker run命令，并给定一些参数，那么在执行docker run时docker在背后到底为我们做了哪些事情呢？ 1、docker常用命令执行流程先来看官方给出的一张容器创建过程图：   这张图描述了docker build、docker pull和docker run三个命令在Client、Docker d">
+<meta property="og:description" content="一、JDBC的定义Java 数据库连接 (JDBC) API 提供来自 Java 编程语言的通用数据访问。使用 JDBC API，您几乎可以访问任何数据源，从关系数据库到电子表格和平面文件（flat files）。 JDBC 技术还提供了一个通用基础，可以在此基础上构建工具和替代接口。 JDBC Api由下面两个包组成：  java.sql javax.sql  当你下载Java SE 8 的时候">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/images/docker创建容器流程图-官方.png">
-<meta property="og:image" content="http://example.com/images/docker_run大致流程.png">
-<meta property="og:image" content="http://example.com/images/docker拉取镜像创建容器的大致流程.png">
-<meta property="article:published_time" content="2022-07-31T12:50:43.117Z">
-<meta property="article:modified_time" content="2022-07-31T13:42:10.358Z">
+<meta property="og:image" content="http://example.com/images/Two-tier-Architecture-for-Data-Access.gif">
+<meta property="og:image" content="http://example.com/images/Three-tier-Architecture-for-Data-Access.gif">
+<meta property="article:published_time" content="2022-10-06T05:19:23.973Z">
+<meta property="article:modified_time" content="2022-10-06T05:34:58.272Z">
 <meta property="article:author" content="钟镇刚">
-<meta property="article:tag" content="docker容器创建">
+<meta property="article:tag" content="Jdbc">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/images/docker创建容器流程图-官方.png">
+<meta name="twitter:image" content="http://example.com/images/Two-tier-Architecture-for-Data-Access.gif">
 
 
-<link rel="canonical" href="http://example.com/2022/07/31/Docker%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/">
+<link rel="canonical" href="http://example.com/2022/10/06/Jdbc%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2022/07/31/Docker%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/","path":"2022/07/31/Docker容器创建过程解析/","title":"Docker容器创建过程解析"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2022/10/06/Jdbc%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/","path":"2022/10/06/Jdbc基础知识/","title":"Jdbc基础知识"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>Docker容器创建过程解析 | 钟镇刚的博客</title>
+<title>Jdbc基础知识 | 钟镇刚的博客</title>
   
 
   <script src="/js/third-party/analytics/baidu-analytics.js"></script>
@@ -149,7 +148,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81docker-run%E5%91%BD%E4%BB%A4%E7%9A%84%E8%83%8C%E5%90%8E%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">一、docker run命令的背后发生了什么？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">1、docker常用命令执行流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81docker-run%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">2、docker run命令执行流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81docker%E5%86%85%E9%83%A8%E6%98%AF%E6%80%8E%E4%B9%88%E5%AE%8C%E6%88%90%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E6%AD%A5%E9%AA%A4%E7%9A%84%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">二、docker内部是怎么完成容器创建步骤的？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E5%88%9B%E5%BB%BA%E5%AE%B9%E5%99%A8%E6%97%B6%EF%BC%8Cclient%E5%90%91docker-daemon%E5%8F%91%E9%80%81%E4%BA%86%E4%BB%80%E4%B9%88%E8%AF%B7%E6%B1%82%EF%BC%9F"><span class="nav-number">2.1.</span> <span class="nav-text">1、创建容器时，client向docker daemon发送了什么请求？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81JDBC%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">一、JDBC的定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81JDBC%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">二、JDBC执行流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81JDBC%E6%9E%B6%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">三、JDBC架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">双层架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="nav-number">3.2.</span> <span class="nav-text">三层架构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81JDBC%E7%BC%96%E7%A8%8B%E6%AD%A5%E9%AA%A4"><span class="nav-number">4.</span> <span class="nav-text">四、JDBC编程步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -220,7 +219,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/31/Docker%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/10/06/Jdbc%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -233,12 +232,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="Docker容器创建过程解析 | 钟镇刚的博客">
+      <meta itemprop="name" content="Jdbc基础知识 | 钟镇刚的博客">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Docker容器创建过程解析
+          Jdbc基础知识
         </h1>
 
         <div class="post-meta-container">
@@ -250,7 +249,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2022-07-31 20:50:43 / 修改时间：21:42:10" itemprop="dateCreated datePublished" datetime="2022-07-31T20:50:43+08:00">2022-07-31</time>
+      <time title="创建时间：2022-10-06 13:19:23 / 修改时间：13:34:58" itemprop="dateCreated datePublished" datetime="2022-10-06T13:19:23+08:00">2022-10-06</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -258,7 +257,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B-docker/" itemprop="url" rel="index"><span itemprop="name">编程 - docker</span></a>
+          <a href="/categories/Java-%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">Java - 数据库</span></a>
         </span>
     </span>
 
@@ -276,14 +275,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.7k</span>
+      <span>1.2k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>2 分钟</span>
+      <span>1 分钟</span>
     </span>
 </div>
 
@@ -294,44 +293,47 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="一、docker-run命令的背后发生了什么？"><a href="#一、docker-run命令的背后发生了什么？" class="headerlink" title="一、docker run命令的背后发生了什么？"></a>一、docker run命令的背后发生了什么？</h2><p>平时在创建docker容器的时候会使用<code>docker run</code>命令，并给定一些参数，那么在执行<code>docker run</code>时docker在背后到底为我们做了哪些事情呢？</p>
-<h3 id="1、docker常用命令执行流程"><a href="#1、docker常用命令执行流程" class="headerlink" title="1、docker常用命令执行流程"></a>1、docker常用命令执行流程</h3><p>先来看官方给出的一张容器创建过程图：</p>
-<img src="/images/docker创建容器流程图-官方.png" alt="img" style="zoom: 50%;" />
-
-<p>这张图描述了<code>docker build</code>、<code>docker pull</code>和<code>docker run</code>三个命令在Client、Docker daemon和Regitry之间的交互流程。接下来我们着重分析<code>dockr run</code>命令是如何执行的。</p>
+        <h2 id="一、JDBC的定义"><a href="#一、JDBC的定义" class="headerlink" title="一、JDBC的定义"></a>一、JDBC的定义</h2><p>Java 数据库连接 (JDBC) API 提供来自 Java 编程语言的通用数据访问。使用 JDBC API，您几乎可以访问任何数据源，从关系数据库到电子表格和平面文件（flat files）。 JDBC 技术还提供了一个通用基础，可以在此基础上构建工具和替代接口。</p>
+<p>JDBC Api由下面两个包组成：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html"><code>java.sql</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/api/javax/sql/package-summary.html"><code>javax.sql</code></a></li>
+</ul>
+<p>当你下载Java SE 8 的时候就会自动获取这两个包。</p>
+<p>要将 JDBC API 与特定的数据库管理系统一起使用，您需要基于 JDBC 技术的驱动程序在 JDBC 技术和数据库之间进行调解。根据各种因素，驱动程序可能纯粹用 Java 编程语言编写，也可能混合使用 Java 编程语言和 Java 本机接口 (JNI) 本机方法。要获取特定数据库管理系统的 JDBC 驱动程序，请参阅 <a target="_blank" rel="noopener" href="http://www.oracle.com/technetwork/java/javase/tech/index-jsp-136101.html">JDBC 数据访问 API</a></p>
 <span id="more"></span>
 
-<h3 id="2、docker-run命令执行流程"><a href="#2、docker-run命令执行流程" class="headerlink" title="2、docker run命令执行流程"></a>2、docker run命令执行流程</h3><p>先假设我们要创建一个ubuntu容器，那么首先会执行下面的命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -i -t ubuntu /bin/bash</span><br></pre></td></tr></table></figure>
+<h2 id="二、JDBC执行流程"><a href="#二、JDBC执行流程" class="headerlink" title="二、JDBC执行流程"></a>二、JDBC执行流程</h2><p>执行流程分为三步，如下所示：</p>
+<ul>
+<li>连接数据源，如：数据库。</li>
+<li>为数据库传递查询和更新指令。</li>
+<li>处理数据库响应并返回的结果。</li>
+</ul>
+<h2 id="三、JDBC架构"><a href="#三、JDBC架构" class="headerlink" title="三、JDBC架构"></a>三、JDBC架构</h2><p>分为双层架构和三层架构。</p>
+<h3 id="双层架构"><a href="#双层架构" class="headerlink" title="双层架构"></a>双层架构</h3><p><img src="/images/Two-tier-Architecture-for-Data-Access.gif" alt="Two-tier-Architecture-for-Data-Access"></p>
+<p>作用：此架构中，Java Applet 或应用直接访问数据源。</p>
+<p>条件：要求 Driver 能与访问的数据库交互。</p>
+<p>机制：用户命令传给数据库或其他数据源，随之结果被返回。</p>
+<p>部署：数据源可以在另一台机器上，用户通过网络连接，称为 C&#x2F;S配置（可以是内联网或互联网）</p>
+<h3 id="三层架构"><a href="#三层架构" class="headerlink" title="三层架构"></a>三层架构</h3><p><img src="/images/Three-tier-Architecture-for-Data-Access.gif" alt="Three-tier-Architecture-for-Data-Access"></p>
+<p>侧架构特殊之处在于，引入中间层服务。</p>
+<p>流程：命令和结构都会经过该层。</p>
+<p>吸引：可以增加企业数据的访问控制，以及多种类型的更新；另外，也可简化应用的部署，并在多数情况下有性能优势。</p>
+<p>历史趋势： 以往，因性能问题，中间层都用 C 或 C++ 编写，随着优化编译器（将 Java 字节码 转为 高效的 特定机器码）和技术的发展，如EJB，Java 开始用于中间层的开发这也让 Java 的优势突显出现出来，使用 Java 作为服务器代码语言，JDBC随之被重视。</p>
+<h2 id="四、JDBC编程步骤"><a href="#四、JDBC编程步骤" class="headerlink" title="四、JDBC编程步骤"></a>四、JDBC编程步骤</h2><p>加载驱动程序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Class.forName(driverClass)</span><br><span class="line"><span class="comment">//加载MySql驱动</span></span><br><span class="line">Class.forName(<span class="string">&quot;com.mysql.jdbc.Driver&quot;</span>)</span><br><span class="line"><span class="comment">//加载Oracle驱动</span></span><br><span class="line">Class.forName(<span class="string">&quot;oracle.jdbc.driver.OracleDriver&quot;</span>)</span><br></pre></td></tr></table></figure>
 
-<p>执行上述命令后，docker会为我们启动一个ubuntu容器，那么docker在后台都执行了哪些动作呢？</p>
-<p>docker创建容器的大致过程可以用下面这幅图来描述：</p>
-<img src="/images/docker_run大致流程.png" alt="docker_run大致流程" style="zoom: 33%;" />
+<p>获得数据库连接：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DriverManager.getConnection(<span class="string">&quot;jdbc:mysql://127.0.0.1:3306/imooc&quot;</span>, <span class="string">&quot;root&quot;</span>, <span class="string">&quot;root&quot;</span>);</span><br></pre></td></tr></table></figure>
 
-<p>首先你的操作系统上得要有一个docker daemon后台进程在运行，然后当执行上面这行命令时：</p>
-<p>step1  docker client(即：docker终端命令行)会向docker daemon发送请求，启动一个容器；</p>
-<p>step2  docker daemon会向host os(一般为linux)请求创建容器；</p>
-<p>step3  linux会创建一个空的容器（可以简单理解为：一个未安装操作系统的裸机，只有虚拟出来的CPU、内存等硬件资源）</p>
-<p>step4  docker daemon请检查本机是否存在docker镜像文件（可以简单理解为操作系统安装光盘），如果有，则加载到容器中（即：光盘插入裸机，准备安装操作系统）</p>
-<p>step5  将镜像文件加载到容器中（即：裸机上安装好了操作系统，不再是裸机状态）</p>
-<p>在docker完成上述步骤后，我们就得到了一个ubuntu”虚拟机”，然后就可以执行各种操作了。</p>
-<p>如果在本地没有镜像文件，那么docker回到镜像仓库下载指定得镜像，下载到本地后，再进行装载到容器的操作。这种情况下创建容器的完整流程如下图所示：</p>
-<img src="/images/docker拉取镜像创建容器的大致流程.png" alt="img" style="zoom:33%;" />
-
-
-
-<p>经过上面的分析，我们已经知道了docker创建的大致流程，但是有一些细节我们目前还是不知道的。步骤1中client给docker daemon发送了什么请求？是一个请求还是多个请求？步骤2和步骤3可以看作是一个大操作——在操作系统中（一般为Linux）创建容器。创建容器肯定是要分配资源的，那么docker是怎么向操作系统申请资源的？又申请了哪些资源？步骤4比较好理解，就是在本地或远端寻找镜像文件，但是步骤5又是怎么把镜像文件加载到新创建的空容器中的呢？</p>
-<p>一番搜索后并没有得到满意的答案，为了清楚的了解上述问题，我们接下来将探索docker源码相关部分。</p>
-<h2 id="二、docker内部是怎么完成容器创建步骤的？"><a href="#二、docker内部是怎么完成容器创建步骤的？" class="headerlink" title="二、docker内部是怎么完成容器创建步骤的？"></a>二、docker内部是怎么完成容器创建步骤的？</h2><p>上一节已经梳理清楚了docker创建容器的流程，这一节我们就来探索一下docker内部是怎么完成容器创建每一个步骤的？</p>
-<h3 id="1、创建容器时，client向docker-daemon发送了什么请求？"><a href="#1、创建容器时，client向docker-daemon发送了什么请求？" class="headerlink" title="1、创建容器时，client向docker daemon发送了什么请求？"></a>1、创建容器时，client向docker daemon发送了什么请求？</h3><p>首先看一下在docker client模块中处理<code>docker run</code>命令的函数代码：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// integration/internal/container/container.go文件</span></span><br><span class="line"><span class="comment">// Run creates and start a container with the specified options</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Run</span><span class="params">(ctx context.Context, t *testing.T, client client.APIClient, ops ...<span class="keyword">func</span>(*TestContainerConfig)</span></span>) <span class="type">string</span> &#123;</span><br><span class="line">	t.Helper()</span><br><span class="line">	id := Create(ctx, t, client, ops...) <span class="comment">// step1 创建容器</span></span><br><span class="line"></span><br><span class="line">	err := client.ContainerStart(ctx, id, types.ContainerStartOptions&#123;&#125;) <span class="comment">// step2 开启容器</span></span><br><span class="line">	assert.NilError(t, err)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> id</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
+<p>创建Statement\PreparedStatement对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">conn.createStatement();</span><br><span class="line">conn.prepareStatement(sql);</span><br></pre></td></tr></table></figure>
 
 
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a target="_blank" rel="noopener" href="https://www.dockone.io/article/1239">run执行流详解（以volume，network和libcontainer为线索）</a></p>
-<p>2、<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33339479/article/details/122134279">runc原理概述</a></p>
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/guides/jdbc/">java官方资料</a></p>
+<p>2、<a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/jdbc-use-guide.html">菜鸟教程-JDBC</a></p>
+<p>3、<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/connector-j/8.0/en/">MySQL Connector&#x2F;J 8.0 Developer Guide</a></p>
 
     </div>
 
@@ -341,20 +343,20 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/docker%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA/" rel="tag"># docker容器创建</a>
+              <a href="/tags/Jdbc/" rel="tag"># Jdbc</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/07/31/Docker%E6%BA%90%E7%A0%81%E6%95%B4%E4%BD%93%E5%88%86%E6%9E%90/" rel="prev" title="Docker源码整体分析">
-                  <i class="fa fa-chevron-left"></i> Docker源码整体分析
+                <a href="/2022/09/24/Rest%20Api%20%E8%AE%BE%E8%AE%A1/" rel="prev" title="Rest Api 设计">
+                  <i class="fa fa-chevron-left"></i> Rest Api 设计
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2022/08/17/runc%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="next" title="容器进程是怎么启动的？（runc源码分析）">
-                  容器进程是怎么启动的？（runc源码分析） <i class="fa fa-chevron-right"></i>
+                <a href="/2022/10/06/Jdbc%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" rel="next" title="Jdbc快速入门">
+                  Jdbc快速入门 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>
