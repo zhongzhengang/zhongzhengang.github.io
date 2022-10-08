@@ -166,6 +166,198 @@
       </tags>
   </entry>
   <entry>
+    <title>H2database快速入门</title>
+    <url>/2022/10/08/H2database%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/</url>
+    <content><![CDATA[<h2 id="在一个应用中嵌入H2数据库"><a href="#在一个应用中嵌入H2数据库" class="headerlink" title="在一个应用中嵌入H2数据库"></a>在一个应用中嵌入H2数据库</h2><p>这个数据库可以被用在嵌入式模式或者服务器模式。在嵌入式模式中使用H2，你需要做下面的事情：</p>
+<ul>
+<li>添加<code>h2*.jar</code>到类路径（<strong>H2</strong>数据库没有任何的依赖）</li>
+<li>使用JDBC驱动类：<code>org.h2.Driver</code></li>
+<li>数据库连接URL<code>jdbc:h2:~/test</code>会在你的用户家目录下打开一个数据库<code>test</code></li>
+<li>一个新的数据库会被自动的创建</li>
+</ul>
+<h2 id="H2命令行应用"><a href="#H2命令行应用" class="headerlink" title="H2命令行应用"></a>H2命令行应用</h2><p>命令行可以让你使用浏览器接口访问SQL数据库。</p>
+<p><img src="/images/console-2.png" alt="Web Browser - H2 Console Server - H2 Database"></p>
+<span id="more"></span>
+
+<p>如果你没有Windows系统，或者某些事情不能如期工作，请参考<a href="http://www.h2database.com/html/tutorial.html">Tutorial</a>。</p>
+<h3 id="实践步骤"><a href="#实践步骤" class="headerlink" title="实践步骤"></a>实践步骤</h3><h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><p>使用windows installer安装<strong>H2</strong>软件。下载地址为：<a href="http://www.h2database.com/html/download.html">http://www.h2database.com/html/download.html</a></p>
+<h4 id="打开命令行"><a href="#打开命令行" class="headerlink" title="打开命令行"></a>打开命令行</h4><p>点击[start]，[All Programs], [H2], 和 [H2 Console(Command Line)]:</p>
+<p><img src="/images/quickstart-1.png" alt="image-20221008210903375"></p>
+<p>一个新的命令行窗口就出现了。</p>
+<p><img src="/images/image-20221008211831815.png" alt="image-20221008211831815"></p>
+<p>同时一个新的浏览器页面也会打开URL:  <a href="http://localhost:8082。你也许会被防火墙告警。如果你不想网络上的其他电脑访问你机器上的数据库，你可以让防火墙拦截那些请求。在本次教程中只需要本地连接就可以了。">http://localhost:8082。你也许会被防火墙告警。如果你不想网络上的其他电脑访问你机器上的数据库，你可以让防火墙拦截那些请求。在本次教程中只需要本地连接就可以了。</a></p>
+<h4 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h4><p>选择[Generic H2]并且点击[Connect]:</p>
+<p><img src="/images/quickstart-2.png" alt="quickstart-2"></p>
+<p>现在你就登录到H2数据库了。</p>
+<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><p>点击[Sample SQL Script]:</p>
+<p><img src="/images/image-20221008212611418.png" alt="image-20221008212611418"></p>
+<p>SQL命令会出现命令行区域。</p>
+<h4 id="执行SQL"><a href="#执行SQL" class="headerlink" title="执行SQL"></a>执行SQL</h4><p>点击[Run]按钮。</p>
+<p><img src="/images/image-20221008212814235.png" alt="image-20221008212814235"></p>
+<p>在页面的左侧，一个新的<code>TEST</code>入口会被添加到数据库图标下面。操作和语句的结果展示在下面的脚本中。</p>
+<p><img src="/images/image-20221008213039039.png" alt="image-20221008213039039"></p>
+<h4 id="关闭连接"><a href="#关闭连接" class="headerlink" title="关闭连接"></a>关闭连接</h4><p>点击[Disconnect]来关闭与H2数据库的连接。</p>
+<h4 id="结束"><a href="#结束" class="headerlink" title="结束"></a>结束</h4><p>关闭命令行窗口就退出了整个H2数据库。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、Quickstart：<a href="http://www.h2database.com/html/quickstart.html">http://www.h2database.com/html/quickstart.html</a></p>
+]]></content>
+      <categories>
+        <category>Java - 数据库</category>
+      </categories>
+      <tags>
+        <tag>H2database</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>H2database基础知识</title>
+    <url>/2022/10/08/H2database%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</url>
+    <content><![CDATA[<p><strong>H2</strong>是一个<a href="https://baike.baidu.com/item/Java?fromModule=lemma_inlink">Java</a>编写的<a href="https://baike.baidu.com/item/%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93?fromModule=lemma_inlink">关系型数据库</a>，它可以被嵌入Java应用程序中使用，或者作为一个单独的<a href="https://baike.baidu.com/item/%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9C%8D%E5%8A%A1%E5%99%A8/613818?fromModule=lemma_inlink">数据库服务器</a>运行。</p>
+<p>H2数据库的前身是 HypersonicSQL，它的名字的含义是 Hypersonic2，但是它的代码是从头开始编写的，没有使用HypersonicSQL或者<a href="https://baike.baidu.com/item/HSQLDB?fromModule=lemma_inlink">HSQLDB</a>的代码。</p>
+<h2 id="主要特点"><a href="#主要特点" class="headerlink" title="主要特点"></a>主要特点</h2><ul>
+<li>Very fast, open source, JDBC API</li>
+<li>Embedded and server modes; disk-based or in-memory databases</li>
+<li>Transaction support, multi-version concurrency</li>
+<li>Browser based Console application</li>
+<li>Encrypted databases</li>
+<li>Fulltext search</li>
+<li>Pure Java with small footprint: around 2.5 MB jar file size</li>
+<li>ODBC driver</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、官方网址：<a href="http://www.h2database.com/html/main.html">http://www.h2database.com/html/main.html</a></p>
+<p>2、Github仓库地址：<a href="https://github.com/h2database/h2database">https://github.com/h2database/h2database</a></p>
+<p>3、百度百科-H2database: <a href="https://baike.baidu.com/item/H2%E6%95%B0%E6%8D%AE%E5%BA%93?fromModule=lemma_search-box">https://baike.baidu.com/item/H2%E6%95%B0%E6%8D%AE%E5%BA%93?fromModule=lemma_search-box</a></p>
+]]></content>
+      <categories>
+        <category>Java - 数据库</category>
+      </categories>
+      <tags>
+        <tag>H2database</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>H2database安装教程</title>
+    <url>/2022/10/08/H2database%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/</url>
+    <content><![CDATA[<p>H2数据库安装还是非常简单的，具体步骤可以参考：<a href="http://www.h2database.com/html/installation.html">http://www.h2database.com/html/installation.html</a></p>
+<p>下面是H2安装完后的相关目录介绍：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Directory</th>
+<th align="left">Contents</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">bin</td>
+<td align="left">JAR and batch files</td>
+</tr>
+<tr>
+<td align="left">docs</td>
+<td align="left">Documentation</td>
+</tr>
+<tr>
+<td align="left">docs&#x2F;html</td>
+<td align="left">HTML pages</td>
+</tr>
+<tr>
+<td align="left">docs&#x2F;javadoc</td>
+<td align="left">Javadoc files</td>
+</tr>
+<tr>
+<td align="left">ext</td>
+<td align="left">External dependencies (downloaded when building)</td>
+</tr>
+<tr>
+<td align="left">service</td>
+<td align="left">Tools to run the database as a Windows Service</td>
+</tr>
+<tr>
+<td align="left">src</td>
+<td align="left">Source files</td>
+</tr>
+<tr>
+<td align="left">src&#x2F;docsrc</td>
+<td align="left">Documentation sources</td>
+</tr>
+<tr>
+<td align="left">src&#x2F;installer</td>
+<td align="left">Installer, shell, and release build script</td>
+</tr>
+<tr>
+<td align="left">src&#x2F;main</td>
+<td align="left">Database engine source code</td>
+</tr>
+<tr>
+<td align="left">src&#x2F;test</td>
+<td align="left">Test source code</td>
+</tr>
+<tr>
+<td align="left">src&#x2F;tools</td>
+<td align="left">Tools and database adapters source code</td>
+</tr>
+</tbody></table>
+<span id="more"></span>
+]]></content>
+      <categories>
+        <category>Java - 数据库</category>
+      </categories>
+      <tags>
+        <tag>H2database</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Jdbc基础知识</title>
+    <url>/2022/10/06/Jdbc%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</url>
+    <content><![CDATA[<h2 id="一、JDBC的定义"><a href="#一、JDBC的定义" class="headerlink" title="一、JDBC的定义"></a>一、JDBC的定义</h2><p>Java 数据库连接 (JDBC) API 提供来自 Java 编程语言的通用数据访问。使用 JDBC API，您几乎可以访问任何数据源，从关系数据库到电子表格和平面文件（flat files）。 JDBC 技术还提供了一个通用基础，可以在此基础上构建工具和替代接口。</p>
+<p>JDBC Api由下面两个包组成：</p>
+<ul>
+<li><a href="https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html"><code>java.sql</code></a></li>
+<li><a href="https://docs.oracle.com/javase/8/docs/api/javax/sql/package-summary.html"><code>javax.sql</code></a></li>
+</ul>
+<p>当你下载Java SE 8 的时候就会自动获取这两个包。</p>
+<p>要将 JDBC API 与特定的数据库管理系统一起使用，您需要基于 JDBC 技术的驱动程序在 JDBC 技术和数据库之间进行调解。根据各种因素，驱动程序可能纯粹用 Java 编程语言编写，也可能混合使用 Java 编程语言和 Java 本机接口 (JNI) 本机方法。要获取特定数据库管理系统的 JDBC 驱动程序，请参阅 <a href="http://www.oracle.com/technetwork/java/javase/tech/index-jsp-136101.html">JDBC 数据访问 API</a></p>
+<span id="more"></span>
+
+<h2 id="二、JDBC执行流程"><a href="#二、JDBC执行流程" class="headerlink" title="二、JDBC执行流程"></a>二、JDBC执行流程</h2><p>执行流程分为三步，如下所示：</p>
+<ul>
+<li>连接数据源，如：数据库。</li>
+<li>为数据库传递查询和更新指令。</li>
+<li>处理数据库响应并返回的结果。</li>
+</ul>
+<h2 id="三、JDBC架构"><a href="#三、JDBC架构" class="headerlink" title="三、JDBC架构"></a>三、JDBC架构</h2><p>分为双层架构和三层架构。</p>
+<h3 id="双层架构"><a href="#双层架构" class="headerlink" title="双层架构"></a>双层架构</h3><p><img src="/images/Two-tier-Architecture-for-Data-Access.gif" alt="Two-tier-Architecture-for-Data-Access"></p>
+<p>作用：此架构中，Java Applet 或应用直接访问数据源。</p>
+<p>条件：要求 Driver 能与访问的数据库交互。</p>
+<p>机制：用户命令传给数据库或其他数据源，随之结果被返回。</p>
+<p>部署：数据源可以在另一台机器上，用户通过网络连接，称为 C&#x2F;S配置（可以是内联网或互联网）</p>
+<h3 id="三层架构"><a href="#三层架构" class="headerlink" title="三层架构"></a>三层架构</h3><p><img src="/images/Three-tier-Architecture-for-Data-Access.gif" alt="Three-tier-Architecture-for-Data-Access"></p>
+<p>侧架构特殊之处在于，引入中间层服务。</p>
+<p>流程：命令和结构都会经过该层。</p>
+<p>吸引：可以增加企业数据的访问控制，以及多种类型的更新；另外，也可简化应用的部署，并在多数情况下有性能优势。</p>
+<p>历史趋势： 以往，因性能问题，中间层都用 C 或 C++ 编写，随着优化编译器（将 Java 字节码 转为 高效的 特定机器码）和技术的发展，如EJB，Java 开始用于中间层的开发这也让 Java 的优势突显出现出来，使用 Java 作为服务器代码语言，JDBC随之被重视。</p>
+<h2 id="四、JDBC编程步骤"><a href="#四、JDBC编程步骤" class="headerlink" title="四、JDBC编程步骤"></a>四、JDBC编程步骤</h2><p>加载驱动程序：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Class.forName(driverClass)</span><br><span class="line"><span class="comment">//加载MySql驱动</span></span><br><span class="line">Class.forName(<span class="string">&quot;com.mysql.jdbc.Driver&quot;</span>)</span><br><span class="line"><span class="comment">//加载Oracle驱动</span></span><br><span class="line">Class.forName(<span class="string">&quot;oracle.jdbc.driver.OracleDriver&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>获得数据库连接：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">DriverManager.getConnection(<span class="string">&quot;jdbc:mysql://127.0.0.1:3306/imooc&quot;</span>, <span class="string">&quot;root&quot;</span>, <span class="string">&quot;root&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>创建Statement\PreparedStatement对象：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">conn.createStatement();</span><br><span class="line">conn.prepareStatement(sql);</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a href="https://docs.oracle.com/javase/8/docs/technotes/guides/jdbc/">java官方资料</a></p>
+<p>2、<a href="https://www.runoob.com/w3cnote/jdbc-use-guide.html">菜鸟教程-JDBC</a></p>
+<p>3、<a href="https://dev.mysql.com/doc/connector-j/8.0/en/">MySQL Connector&#x2F;J 8.0 Developer Guide</a></p>
+]]></content>
+      <categories>
+        <category>Java - 数据库</category>
+      </categories>
+      <tags>
+        <tag>Jdbc</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Java远程调试各参数说明</title>
     <url>/2022/08/17/Java%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%E5%90%84%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/</url>
     <content><![CDATA[<p>首先，JAVA自身支持调试功能，并提供了一个简单的调试工具JDB，类似于功能强大的GDB，JDB也是一个字符界面的调试环境，并支持设置断点，支持线程级的调试。</p>
@@ -224,58 +416,6 @@
       </categories>
       <tags>
         <tag>远程调试</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Jdbc基础知识</title>
-    <url>/2022/10/06/Jdbc%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</url>
-    <content><![CDATA[<h2 id="一、JDBC的定义"><a href="#一、JDBC的定义" class="headerlink" title="一、JDBC的定义"></a>一、JDBC的定义</h2><p>Java 数据库连接 (JDBC) API 提供来自 Java 编程语言的通用数据访问。使用 JDBC API，您几乎可以访问任何数据源，从关系数据库到电子表格和平面文件（flat files）。 JDBC 技术还提供了一个通用基础，可以在此基础上构建工具和替代接口。</p>
-<p>JDBC Api由下面两个包组成：</p>
-<ul>
-<li><a href="https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html"><code>java.sql</code></a></li>
-<li><a href="https://docs.oracle.com/javase/8/docs/api/javax/sql/package-summary.html"><code>javax.sql</code></a></li>
-</ul>
-<p>当你下载Java SE 8 的时候就会自动获取这两个包。</p>
-<p>要将 JDBC API 与特定的数据库管理系统一起使用，您需要基于 JDBC 技术的驱动程序在 JDBC 技术和数据库之间进行调解。根据各种因素，驱动程序可能纯粹用 Java 编程语言编写，也可能混合使用 Java 编程语言和 Java 本机接口 (JNI) 本机方法。要获取特定数据库管理系统的 JDBC 驱动程序，请参阅 <a href="http://www.oracle.com/technetwork/java/javase/tech/index-jsp-136101.html">JDBC 数据访问 API</a></p>
-<span id="more"></span>
-
-<h2 id="二、JDBC执行流程"><a href="#二、JDBC执行流程" class="headerlink" title="二、JDBC执行流程"></a>二、JDBC执行流程</h2><p>执行流程分为三步，如下所示：</p>
-<ul>
-<li>连接数据源，如：数据库。</li>
-<li>为数据库传递查询和更新指令。</li>
-<li>处理数据库响应并返回的结果。</li>
-</ul>
-<h2 id="三、JDBC架构"><a href="#三、JDBC架构" class="headerlink" title="三、JDBC架构"></a>三、JDBC架构</h2><p>分为双层架构和三层架构。</p>
-<h3 id="双层架构"><a href="#双层架构" class="headerlink" title="双层架构"></a>双层架构</h3><p><img src="/images/Two-tier-Architecture-for-Data-Access.gif" alt="Two-tier-Architecture-for-Data-Access"></p>
-<p>作用：此架构中，Java Applet 或应用直接访问数据源。</p>
-<p>条件：要求 Driver 能与访问的数据库交互。</p>
-<p>机制：用户命令传给数据库或其他数据源，随之结果被返回。</p>
-<p>部署：数据源可以在另一台机器上，用户通过网络连接，称为 C&#x2F;S配置（可以是内联网或互联网）</p>
-<h3 id="三层架构"><a href="#三层架构" class="headerlink" title="三层架构"></a>三层架构</h3><p><img src="/images/Three-tier-Architecture-for-Data-Access.gif" alt="Three-tier-Architecture-for-Data-Access"></p>
-<p>侧架构特殊之处在于，引入中间层服务。</p>
-<p>流程：命令和结构都会经过该层。</p>
-<p>吸引：可以增加企业数据的访问控制，以及多种类型的更新；另外，也可简化应用的部署，并在多数情况下有性能优势。</p>
-<p>历史趋势： 以往，因性能问题，中间层都用 C 或 C++ 编写，随着优化编译器（将 Java 字节码 转为 高效的 特定机器码）和技术的发展，如EJB，Java 开始用于中间层的开发这也让 Java 的优势突显出现出来，使用 Java 作为服务器代码语言，JDBC随之被重视。</p>
-<h2 id="四、JDBC编程步骤"><a href="#四、JDBC编程步骤" class="headerlink" title="四、JDBC编程步骤"></a>四、JDBC编程步骤</h2><p>加载驱动程序：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Class.forName(driverClass)</span><br><span class="line"><span class="comment">//加载MySql驱动</span></span><br><span class="line">Class.forName(<span class="string">&quot;com.mysql.jdbc.Driver&quot;</span>)</span><br><span class="line"><span class="comment">//加载Oracle驱动</span></span><br><span class="line">Class.forName(<span class="string">&quot;oracle.jdbc.driver.OracleDriver&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p>获得数据库连接：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">DriverManager.getConnection(<span class="string">&quot;jdbc:mysql://127.0.0.1:3306/imooc&quot;</span>, <span class="string">&quot;root&quot;</span>, <span class="string">&quot;root&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>创建Statement\PreparedStatement对象：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">conn.createStatement();</span><br><span class="line">conn.prepareStatement(sql);</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a href="https://docs.oracle.com/javase/8/docs/technotes/guides/jdbc/">java官方资料</a></p>
-<p>2、<a href="https://www.runoob.com/w3cnote/jdbc-use-guide.html">菜鸟教程-JDBC</a></p>
-<p>3、<a href="https://dev.mysql.com/doc/connector-j/8.0/en/">MySQL Connector&#x2F;J 8.0 Developer Guide</a></p>
-]]></content>
-      <categories>
-        <category>Java - 数据库</category>
-      </categories>
-      <tags>
-        <tag>Jdbc</tag>
       </tags>
   </entry>
   <entry>
@@ -374,31 +514,53 @@
       </tags>
   </entry>
   <entry>
-    <title>Jdbc快速入门</title>
-    <url>/2022/10/06/Jdbc%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/</url>
-    <content><![CDATA[<p>在这篇文章中，我们将使用Jdbc来操作MySQL数据库。</p>
-<h2 id="一、导入MySQL驱动包依赖"><a href="#一、导入MySQL驱动包依赖" class="headerlink" title="一、导入MySQL驱动包依赖"></a>一、导入MySQL驱动包依赖</h2><p>由于是使用maven管理的依赖，就直接给出依赖坐标了，如果是gradle可以改下写法就好了。</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>8.0.30<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
+    <title>Netty学习笔记</title>
+    <url>/2022/09/03/Netty%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><p>Netty 是一个 NIO 客户端服务器框架，可快速轻松地开发网络应用程序，例如协议服务器和客户端。它极大地简化和简化了网络编程，例如 TCP 和 UDP 套接字服务器。</p>
+<p>“快速简便”并不意味着最终的应用程序将遭受可维护性或性能问题的困扰。Netty 经过精心设计，结合了许多协议（例如FTP，SMTP，HTTP 以及各种基于二进制和文本的旧式协议）的实施经验。结果，Netty 成功地找到了一种无需妥协即可轻松实现开发，性能，稳定性和灵活性的方法。</p>
+<p><img src="/images/3031480eb2c5d3fa2ee10cd7c232a6a7.png" alt="img"></p>
 <span id="more"></span>
 
-<h2 id="二、运行MySQL容器"><a href="#二、运行MySQL容器" class="headerlink" title="二、运行MySQL容器"></a>二、运行MySQL容器</h2><p>为了图省事方便，直接使用本地docker运行mysql的容器，执行下面的命令就好了。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker run --name mucao-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -e MYSQL_USER=mucao -e MYSQL_PASSWORD=1 23456 -e MYSQL_DATABASE=<span class="built_in">test</span>  -d mysql:oracle</span><br></pre></td></tr></table></figure>
+<h2 id="二、Netty-执行流程"><a href="#二、Netty-执行流程" class="headerlink" title="二、Netty 执行流程"></a>二、Netty 执行流程</h2><p><img src="/images/a24e12f2282106f1accab91b88e2a5e3.png" alt="img"></p>
+<h2 id="三、Netty-核心组件"><a href="#三、Netty-核心组件" class="headerlink" title="三、Netty 核心组件"></a>三、Netty 核心组件</h2><h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><p>Channel是 Java NIO 的一个基本构造。可以看作是传入或传出数据的载体。因此，它可以被打开或关闭，连接或者断开连接。</p>
+<h3 id="EventLoop-与-EventLoopGroup"><a href="#EventLoop-与-EventLoopGroup" class="headerlink" title="EventLoop 与 EventLoopGroup"></a>EventLoop 与 EventLoopGroup</h3><p>EventLoop 定义了Netty的核心抽象，用来处理连接的生命周期中所发生的事件，在内部，将会为每个Channel分配一个EventLoop。</p>
+<p>EventLoopGroup 是一个 EventLoop 池，包含很多的 EventLoop。</p>
+<p>Netty 为每个 Channel 分配了一个 EventLoop，用于处理用户连接请求、对用户请求的处理等所有事件。EventLoop 本身只是一个线程驱动，在其生命周期内只会绑定一个线程，让该线程处理一个 Channel 的所有 IO 事件。</p>
+<p>一个 Channel 一旦与一个 EventLoop 相绑定，那么在 Channel 的整个生命周期内是不能改变的。一个 EventLoop 可以与多个 Channel 绑定。即 Channel 与 EventLoop 的关系是 n:1，而 EventLoop 与线程的关系是 1:1。</p>
+<h3 id="ServerBootstrap-与-Bootstrap"><a href="#ServerBootstrap-与-Bootstrap" class="headerlink" title="ServerBootstrap 与 Bootstrap"></a>ServerBootstrap 与 Bootstrap</h3><p>Bootstarp 和 ServerBootstrap 被称为引导类，指对应用程序进行配置，并使他运行起来的过程。Netty处理引导的方式是使你的应用程序和网络层相隔离。<br>Bootstrap 是客户端的引导类，Bootstrap 在调用 bind()（连接UDP）和 connect()（连接TCP）方法时，会新创建一个 Channel，仅创建一个单独的、没有父 Channel 的 Channel 来实现所有的网络交换。</p>
+<p>ServerBootstrap 是服务端的引导类，ServerBootstarp 在调用 bind() 方法时会创建一个 ServerChannel 来接受来自客户端的连接，并且该 ServerChannel 管理了多个子 Channel 用于同客户端之间的通信。</p>
+<h3 id="ChannelHandler-与-ChannelPipeline"><a href="#ChannelHandler-与-ChannelPipeline" class="headerlink" title="ChannelHandler 与 ChannelPipeline"></a>ChannelHandler 与 ChannelPipeline</h3><p>ChannelHandler 是对 Channel 中数据的处理器，这些处理器可以是系统本身定义好的编解码器，也可以是用户自定义的。这些处理器会被统一添加到一个 ChannelPipeline 的对象中，然后按照添加的顺序对 Channel 中的数据进行依次处理。</p>
+<h3 id="ChannelFuture"><a href="#ChannelFuture" class="headerlink" title="ChannelFuture"></a>ChannelFuture</h3><p>Netty 中所有的 I&#x2F;O 操作都是异步的，即操作不会立即得到返回结果，所以 Netty 中定义了一个 ChannelFuture 对象作为这个异步操作的“代言人”，表示异步操作本身。如果想获取到该异步操作的返回值，可以通过该异步操作对象的addListener() 方法为该异步操作添加监 NIO 网络编程框架 Netty 听器，为其注册回调：当结果出来后马上调用执行。</p>
+<p>Netty 的异步编程模型都是建立在 Future 与回调概念之上的。</p>
+<h2 id="四、示例代码"><a href="#四、示例代码" class="headerlink" title="四、示例代码"></a>四、示例代码</h2><h3 id="Netty-Server-代码"><a href="#Netty-Server-代码" class="headerlink" title="Netty - Server 代码"></a>Netty - Server 代码</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NettyServer</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">EventLoopGroup</span> <span class="variable">parentGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>();</span><br><span class="line">        <span class="type">EventLoopGroup</span> <span class="variable">childGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">            <span class="type">ServerBootstrap</span> <span class="variable">bootstrap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ServerBootstrap</span>();</span><br><span class="line">            bootstrap.group(parentGroup, childGroup)</span><br><span class="line">                     .channel(NioServerSocketChannel.class)</span><br><span class="line">                     .childHandler(<span class="keyword">new</span> <span class="title class_">ChannelInitializer</span>&lt;SocketChannel&gt;() &#123;</span><br><span class="line"></span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">initChannel</span><span class="params">(SocketChannel ch)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">                            <span class="type">ChannelPipeline</span> <span class="variable">pipeline</span> <span class="operator">=</span> ch.pipeline();</span><br><span class="line">                            pipeline.addLast(<span class="keyword">new</span> <span class="title class_">StringDecoder</span>());</span><br><span class="line">                            pipeline.addLast(<span class="keyword">new</span> <span class="title class_">StringEncoder</span>());</span><br><span class="line">                            pipeline.addLast(<span class="keyword">new</span> <span class="title class_">SomeSocketServerHandler</span>());</span><br><span class="line">                         &#125;</span><br><span class="line">                    &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="type">ChannelFuture</span> <span class="variable">future</span> <span class="operator">=</span> bootstrap.bind(<span class="number">8888</span>).sync();</span><br><span class="line">            System.out.println(<span class="string">&quot;服务器已启动。。。&quot;</span>);</span><br><span class="line"></span><br><span class="line">            future.channel().closeFuture().sync();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            parentGroup.shutdownGracefully();</span><br><span class="line">            childGroup.shutdownGracefully();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Server-端-Handler"><a href="#Server-端-Handler" class="headerlink" title="Server 端 Handler"></a>Server 端 Handler</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoSocketServerHandler</span></span><br><span class="line">                       <span class="keyword">extends</span> <span class="title class_">ChannelInboundHandlerAdapter</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span></span><br><span class="line">            <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Client Address ====== &quot;</span> + ctx.channel().remoteAddress());</span><br><span class="line">        ctx.channel().writeAndFlush(<span class="string">&quot;from server:&quot;</span> + UUID.randomUUID());</span><br><span class="line">        ctx.fireChannelActive();</span><br><span class="line">        TimeUnit.MILLISECONDS.sleep(<span class="number">500</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">exceptionCaught</span><span class="params">(ChannelHandlerContext ctx,</span></span><br><span class="line"><span class="params">                                Throwable cause)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        cause.printStackTrace();</span><br><span class="line">        ctx.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Netty-Client-代码"><a href="#Netty-Client-代码" class="headerlink" title="Netty - Client 代码"></a>Netty - Client 代码</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NettyClient</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">NioEventLoopGroup</span> <span class="variable">eventLoopGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Bootstrap</span> <span class="variable">bootstrap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Bootstrap</span>();</span><br><span class="line">            bootstrap.group(eventLoopGroup)</span><br><span class="line">                    .channel(NioSocketChannel.class)</span><br><span class="line">                    .handler(<span class="keyword">new</span> <span class="title class_">ChannelInitializer</span>&lt;SocketChannel&gt;() &#123;</span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">initChannel</span><span class="params">(SocketChannel ch)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">                            <span class="type">ChannelPipeline</span> <span class="variable">pipeline</span> <span class="operator">=</span> ch.pipeline();</span><br><span class="line">                            pipeline.addLast(<span class="keyword">new</span> <span class="title class_">StringDecoder</span>(CharsetUtil.UTF_8));</span><br><span class="line">                            pipeline.addLast(<span class="keyword">new</span> <span class="title class_">StringEncoder</span>(CharsetUtil.UTF_8));</span><br><span class="line">                            pipeline.addLast(<span class="keyword">new</span> <span class="title class_">DemoSocketClientHandler</span>());</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="type">ChannelFuture</span> <span class="variable">future</span> <span class="operator">=</span> bootstrap.connect(<span class="string">&quot;localhost&quot;</span>, <span class="number">8888</span>).sync();</span><br><span class="line">            future.channel().closeFuture().sync();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(eventLoopGroup != <span class="literal">null</span>) &#123;</span><br><span class="line">                eventLoopGroup.shutdownGracefully();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="三、完整的Jdbc示例程序"><a href="#三、完整的Jdbc示例程序" class="headerlink" title="三、完整的Jdbc示例程序"></a>三、完整的Jdbc示例程序</h2><p>编写jdbc操作mysql的程序就三个步骤：加载驱动、获取连接、执行语句，下面是完整的示例程序，完成的功能非常简单，就是从数据库中查询学生信息，然后打印到控制台。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.mucao;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.sql.Connection;</span><br><span class="line"><span class="keyword">import</span> java.sql.DriverManager;</span><br><span class="line"><span class="keyword">import</span> java.sql.ResultSet;</span><br><span class="line"><span class="keyword">import</span> java.sql.Statement;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Example</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">URL</span> <span class="operator">=</span> <span class="string">&quot;jdbc:mysql://localhost:3306/test&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">USER</span> <span class="operator">=</span> <span class="string">&quot;mucao&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">PASSWORD</span> <span class="operator">=</span> <span class="string">&quot;123456&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//1.加载驱动程序</span></span><br><span class="line">        <span class="comment">// Class.forName(&quot;com.mysql.jdbc.Driver&quot;); 现在已经是通过SPI注册驱动程序了，不再需要手动注册。</span></span><br><span class="line">        <span class="comment">//2. 获得数据库连接</span></span><br><span class="line">        <span class="type">Connection</span> <span class="variable">conn</span> <span class="operator">=</span> DriverManager.getConnection(URL, USER, PASSWORD);</span><br><span class="line">        <span class="comment">//3.操作数据库，实现增删改查</span></span><br><span class="line">        <span class="type">Statement</span> <span class="variable">statement</span> <span class="operator">=</span> conn.createStatement();</span><br><span class="line">        <span class="type">ResultSet</span> <span class="variable">resultSet</span> <span class="operator">=</span> statement.executeQuery(<span class="string">&quot;SELECT * FROM students&quot;</span>);</span><br><span class="line">        <span class="comment">//如果有数据，resultSet.next()返回true</span></span><br><span class="line">        <span class="keyword">while</span> (resultSet.next()) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;名称: &quot;</span> + resultSet.getString(<span class="string">&quot;name&quot;</span>) +</span><br><span class="line">                    <span class="string">&quot;  年龄: &quot;</span> + resultSet.getInt(<span class="string">&quot;age&quot;</span>) +</span><br><span class="line">                    <span class="string">&quot; 年级: &quot;</span> + resultSet.getString(<span class="string">&quot;grade&quot;</span>) );</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Client-端-Handler"><a href="#Client-端-Handler" class="headerlink" title="Client 端 Handler"></a>Client 端 Handler</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoSocketClientHandler</span></span><br><span class="line">               <span class="keyword">extends</span> <span class="title class_">ChannelInboundHandlerAdapter</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span></span><br><span class="line">            <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(msg);</span><br><span class="line">        ctx.channel().writeAndFlush(<span class="string">&quot;from client: &quot;</span> + System.currentTimeMillis());</span><br><span class="line">        TimeUnit.MILLISECONDS.sleep(<span class="number">5000</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Overrid</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelActive</span><span class="params">(ChannelHandlerContext ctx)</span></span><br><span class="line">            <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        ctx.channel().writeAndFlush(<span class="string">&quot;from client：begin talking&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">exceptionCaught</span><span class="params">(ChannelHandlerContext ctx,</span></span><br><span class="line"><span class="params">                                Throwable cause)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        cause.printStackTrace();</span><br><span class="line">        ctx.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>Jdbc简化了Java程序连接数据库的逻辑，并且操作数据库的步骤被统一，程序员不用关注每一个不同数据库的连接细节。</p>
+<h2 id="Reactor线程模型"><a href="#Reactor线程模型" class="headerlink" title="Reactor线程模型"></a>Reactor线程模型</h2><h4 id="单线程的-Reactor-模型"><a href="#单线程的-Reactor-模型" class="headerlink" title="单线程的 Reactor 模型"></a>单线程的 Reactor 模型</h4><p><img src="/images/2eb0dda03835704509aa0e7e128697f4.png" alt="img"></p>
+<h4 id="多线程的-Reactor-模型"><a href="#多线程的-Reactor-模型" class="headerlink" title="多线程的 Reactor 模型"></a>多线程的 Reactor 模型</h4><p><img src="/images/e8dc2b8decb27544a1bf9d1d0e41210e.png" alt="img"></p>
+<h4 id="多线程主从-Reactor-模型"><a href="#多线程主从-Reactor-模型" class="headerlink" title="多线程主从 Reactor 模型"></a>多线程主从 Reactor 模型</h4><p><img src="/images/e438aafa106af5b9fc5f1e54761eb5a1.png" alt="img"></p>
+<h2 id="EventLoop-与-EventLoopGroup分析"><a href="#EventLoop-与-EventLoopGroup分析" class="headerlink" title="EventLoop 与 EventLoopGroup分析"></a>EventLoop 与 EventLoopGroup分析</h2><p><img src="/images/NioEventLoop%E6%B5%81%E7%A8%8B.webp" alt="img"></p>
+<h2 id="学习资源"><a href="#学习资源" class="headerlink" title="学习资源"></a>学习资源</h2><p>1、官网地址: <a href="https://netty.io/">https://netty.io/</a></p>
+<p>2、Github地址：<a href="https://github.com/netty/netty">https://github.com/netty/netty</a></p>
+<p>3、<a href="https://blog.csdn.net/qq_35190492/article/details/113174359">肝了一月的Netty知识点</a></p>
+<p>4、<a href="https://waylau.gitbooks.io/essential-netty-in-action/content/">Essential Netty in Action 《Netty 实战(精髓)》</a></p>
+<p>5、<a href="https://www.jianshu.com/p/0d0eece6d467">netty源码分析之揭开reactor线程的面纱（一）</a></p>
+<p>6、<a href="https://www.jianshu.com/p/467a9b41833e">netty源码分析之揭开reactor线程的面纱（二）</a></p>
+<p>7、<a href="https://www.jianshu.com/p/58fad8e42379">netty源码分析之揭开reactor线程的面纱（三）</a></p>
 ]]></content>
       <categories>
-        <category>Java - 数据库</category>
+        <category>编程 - 框架</category>
       </categories>
       <tags>
-        <tag>Jdbc</tag>
+        <tag>Netty</tag>
       </tags>
   </entry>
   <entry>
@@ -462,6 +624,65 @@
       </categories>
       <tags>
         <tag>MyBatis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Jdbc快速入门</title>
+    <url>/2022/10/06/Jdbc%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/</url>
+    <content><![CDATA[<p>在这篇文章中，我们将使用Jdbc来操作MySQL数据库。</p>
+<h2 id="一、导入MySQL驱动包依赖"><a href="#一、导入MySQL驱动包依赖" class="headerlink" title="一、导入MySQL驱动包依赖"></a>一、导入MySQL驱动包依赖</h2><p>由于是使用maven管理的依赖，就直接给出依赖坐标了，如果是gradle可以改下写法就好了。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>8.0.30<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h2 id="二、运行MySQL容器"><a href="#二、运行MySQL容器" class="headerlink" title="二、运行MySQL容器"></a>二、运行MySQL容器</h2><p>为了图省事方便，直接使用本地docker运行mysql的容器，执行下面的命令就好了。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker run --name mucao-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -e MYSQL_USER=mucao -e MYSQL_PASSWORD=1 23456 -e MYSQL_DATABASE=<span class="built_in">test</span>  -d mysql:oracle</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="三、完整的Jdbc示例程序"><a href="#三、完整的Jdbc示例程序" class="headerlink" title="三、完整的Jdbc示例程序"></a>三、完整的Jdbc示例程序</h2><p>编写jdbc操作mysql的程序就三个步骤：加载驱动、获取连接、执行语句，下面是完整的示例程序，完成的功能非常简单，就是从数据库中查询学生信息，然后打印到控制台。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.mucao;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.sql.Connection;</span><br><span class="line"><span class="keyword">import</span> java.sql.DriverManager;</span><br><span class="line"><span class="keyword">import</span> java.sql.ResultSet;</span><br><span class="line"><span class="keyword">import</span> java.sql.Statement;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Example</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">URL</span> <span class="operator">=</span> <span class="string">&quot;jdbc:mysql://localhost:3306/test&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">USER</span> <span class="operator">=</span> <span class="string">&quot;mucao&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">PASSWORD</span> <span class="operator">=</span> <span class="string">&quot;123456&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//1.加载驱动程序</span></span><br><span class="line">        <span class="comment">// Class.forName(&quot;com.mysql.jdbc.Driver&quot;); 现在已经是通过SPI注册驱动程序了，不再需要手动注册。</span></span><br><span class="line">        <span class="comment">//2. 获得数据库连接</span></span><br><span class="line">        <span class="type">Connection</span> <span class="variable">conn</span> <span class="operator">=</span> DriverManager.getConnection(URL, USER, PASSWORD);</span><br><span class="line">        <span class="comment">//3.操作数据库，实现增删改查</span></span><br><span class="line">        <span class="type">Statement</span> <span class="variable">statement</span> <span class="operator">=</span> conn.createStatement();</span><br><span class="line">        <span class="type">ResultSet</span> <span class="variable">resultSet</span> <span class="operator">=</span> statement.executeQuery(<span class="string">&quot;SELECT * FROM students&quot;</span>);</span><br><span class="line">        <span class="comment">//如果有数据，resultSet.next()返回true</span></span><br><span class="line">        <span class="keyword">while</span> (resultSet.next()) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;名称: &quot;</span> + resultSet.getString(<span class="string">&quot;name&quot;</span>) +</span><br><span class="line">                    <span class="string">&quot;  年龄: &quot;</span> + resultSet.getInt(<span class="string">&quot;age&quot;</span>) +</span><br><span class="line">                    <span class="string">&quot; 年级: &quot;</span> + resultSet.getString(<span class="string">&quot;grade&quot;</span>) );</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>Jdbc简化了Java程序连接数据库的逻辑，并且操作数据库的步骤被统一，程序员不用关注每一个不同数据库的连接细节。</p>
+]]></content>
+      <categories>
+        <category>Java - 数据库</category>
+      </categories>
+      <tags>
+        <tag>Jdbc</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用JDBC连接H2database数据库</title>
+    <url>/2022/10/08/%E4%BD%BF%E7%94%A8JDBC%E8%BF%9E%E6%8E%A5H2%E6%95%B0%E6%8D%AE%E5%BA%93/</url>
+    <content><![CDATA[<p>H2database可以当作应用中嵌入的数据库使用，这篇文章就来实践一下。</p>
+<h2 id="一、引入H2依赖"><a href="#一、引入H2依赖" class="headerlink" title="一、引入H2依赖"></a>一、引入H2依赖</h2><p>我们使用maven来管理工程，下面是H2数据库依赖的坐标：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.h2database<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>h2<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.214<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+
+<h2 id="二、连接H2数据库"><a href="#二、连接H2数据库" class="headerlink" title="二、连接H2数据库"></a>二、连接H2数据库</h2><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.sql.*;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">H2databaseExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] a)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Connection</span> <span class="variable">conn</span> <span class="operator">=</span> DriverManager.getConnection(<span class="string">&quot;jdbc:h2:~/test&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line">        <span class="comment">// add application code here</span></span><br><span class="line">        conn.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先得保证用户家目录下存在<code>test</code>目录，然后在使用<code>DriverManager</code>获取数据库连接的时候用户名和密码都设置为空。</p>
+<h3 id="三、执行SQL语句"><a href="#三、执行SQL语句" class="headerlink" title="三、执行SQL语句"></a>三、执行SQL语句</h3><p>现在已经创建了连接，那么我们在此基础上来执行下SQL语句吧，代码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.mucao;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.sql.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">H2databaseExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">( String[] args )</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">        <span class="type">Connection</span> <span class="variable">conn</span> <span class="operator">=</span> DriverManager.getConnection(<span class="string">&quot;jdbc:h2:~/h2database/test&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line">        <span class="type">Statement</span> <span class="variable">statement</span> <span class="operator">=</span> conn.createStatement();</span><br><span class="line">        statement.execute(<span class="string">&quot;CREATE TABLE IF NOT EXISTS test (id INT PRIMARY KEY , name VARCHAR(255))&quot;</span>);</span><br><span class="line">        statement.execute(<span class="string">&quot;INSERT INTO test VALUES (1, &#x27;hello&#x27;)&quot;</span>);</span><br><span class="line">        statement.execute(<span class="string">&quot;INSERT INTO test VALUES (2, &#x27;world&#x27;)&quot;</span>);</span><br><span class="line">        <span class="type">ResultSet</span> <span class="variable">resultSet</span> <span class="operator">=</span> statement.executeQuery(<span class="string">&quot;SELECT * FROM test ORDER BY id&quot;</span>);</span><br><span class="line">        <span class="keyword">while</span> (resultSet.next()) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;id: &quot;</span> + resultSet.getInt(<span class="string">&quot;id&quot;</span>) + <span class="string">&quot; name: &quot;</span> + resultSet.getString(<span class="string">&quot;name&quot;</span>));</span><br><span class="line">        &#125;</span><br><span class="line">        statement.execute(<span class="string">&quot;UPDATE test SET name = &#x27;hi&#x27; WHERE id = 1&quot;</span>);</span><br><span class="line">        statement.execute(<span class="string">&quot;DELETE FROM test WHERE id = 2&quot;</span>);</span><br><span class="line">        conn.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">id</span>: 1 name: hello</span><br><span class="line"><span class="built_in">id</span>: 2 name: world</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>简单的小节一下，发现H2作为应用嵌入式数据库使用起来非常的方便。在应用开发初期或者对数据库性能要求不高的时候，使用H2作为嵌入式数据库可以降低开发成本和维护成本。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a href="http://www.h2database.com/html/tutorial.html#connecting_using_jdbc">http://www.h2database.com/html/tutorial.html#connecting_using_jdbc</a></p>
+]]></content>
+      <categories>
+        <category>Java - 数据库</category>
+      </categories>
+      <tags>
+        <tag>H2database</tag>
       </tags>
   </entry>
   <entry>
@@ -539,56 +760,6 @@
       </categories>
       <tags>
         <tag>MyBatis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Netty学习笔记</title>
-    <url>/2022/09/03/Netty%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><p>Netty 是一个 NIO 客户端服务器框架，可快速轻松地开发网络应用程序，例如协议服务器和客户端。它极大地简化和简化了网络编程，例如 TCP 和 UDP 套接字服务器。</p>
-<p>“快速简便”并不意味着最终的应用程序将遭受可维护性或性能问题的困扰。Netty 经过精心设计，结合了许多协议（例如FTP，SMTP，HTTP 以及各种基于二进制和文本的旧式协议）的实施经验。结果，Netty 成功地找到了一种无需妥协即可轻松实现开发，性能，稳定性和灵活性的方法。</p>
-<p><img src="/images/3031480eb2c5d3fa2ee10cd7c232a6a7.png" alt="img"></p>
-<span id="more"></span>
-
-<h2 id="二、Netty-执行流程"><a href="#二、Netty-执行流程" class="headerlink" title="二、Netty 执行流程"></a>二、Netty 执行流程</h2><p><img src="/images/a24e12f2282106f1accab91b88e2a5e3.png" alt="img"></p>
-<h2 id="三、Netty-核心组件"><a href="#三、Netty-核心组件" class="headerlink" title="三、Netty 核心组件"></a>三、Netty 核心组件</h2><h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><p>Channel是 Java NIO 的一个基本构造。可以看作是传入或传出数据的载体。因此，它可以被打开或关闭，连接或者断开连接。</p>
-<h3 id="EventLoop-与-EventLoopGroup"><a href="#EventLoop-与-EventLoopGroup" class="headerlink" title="EventLoop 与 EventLoopGroup"></a>EventLoop 与 EventLoopGroup</h3><p>EventLoop 定义了Netty的核心抽象，用来处理连接的生命周期中所发生的事件，在内部，将会为每个Channel分配一个EventLoop。</p>
-<p>EventLoopGroup 是一个 EventLoop 池，包含很多的 EventLoop。</p>
-<p>Netty 为每个 Channel 分配了一个 EventLoop，用于处理用户连接请求、对用户请求的处理等所有事件。EventLoop 本身只是一个线程驱动，在其生命周期内只会绑定一个线程，让该线程处理一个 Channel 的所有 IO 事件。</p>
-<p>一个 Channel 一旦与一个 EventLoop 相绑定，那么在 Channel 的整个生命周期内是不能改变的。一个 EventLoop 可以与多个 Channel 绑定。即 Channel 与 EventLoop 的关系是 n:1，而 EventLoop 与线程的关系是 1:1。</p>
-<h3 id="ServerBootstrap-与-Bootstrap"><a href="#ServerBootstrap-与-Bootstrap" class="headerlink" title="ServerBootstrap 与 Bootstrap"></a>ServerBootstrap 与 Bootstrap</h3><p>Bootstarp 和 ServerBootstrap 被称为引导类，指对应用程序进行配置，并使他运行起来的过程。Netty处理引导的方式是使你的应用程序和网络层相隔离。<br>Bootstrap 是客户端的引导类，Bootstrap 在调用 bind()（连接UDP）和 connect()（连接TCP）方法时，会新创建一个 Channel，仅创建一个单独的、没有父 Channel 的 Channel 来实现所有的网络交换。</p>
-<p>ServerBootstrap 是服务端的引导类，ServerBootstarp 在调用 bind() 方法时会创建一个 ServerChannel 来接受来自客户端的连接，并且该 ServerChannel 管理了多个子 Channel 用于同客户端之间的通信。</p>
-<h3 id="ChannelHandler-与-ChannelPipeline"><a href="#ChannelHandler-与-ChannelPipeline" class="headerlink" title="ChannelHandler 与 ChannelPipeline"></a>ChannelHandler 与 ChannelPipeline</h3><p>ChannelHandler 是对 Channel 中数据的处理器，这些处理器可以是系统本身定义好的编解码器，也可以是用户自定义的。这些处理器会被统一添加到一个 ChannelPipeline 的对象中，然后按照添加的顺序对 Channel 中的数据进行依次处理。</p>
-<h3 id="ChannelFuture"><a href="#ChannelFuture" class="headerlink" title="ChannelFuture"></a>ChannelFuture</h3><p>Netty 中所有的 I&#x2F;O 操作都是异步的，即操作不会立即得到返回结果，所以 Netty 中定义了一个 ChannelFuture 对象作为这个异步操作的“代言人”，表示异步操作本身。如果想获取到该异步操作的返回值，可以通过该异步操作对象的addListener() 方法为该异步操作添加监 NIO 网络编程框架 Netty 听器，为其注册回调：当结果出来后马上调用执行。</p>
-<p>Netty 的异步编程模型都是建立在 Future 与回调概念之上的。</p>
-<h2 id="四、示例代码"><a href="#四、示例代码" class="headerlink" title="四、示例代码"></a>四、示例代码</h2><h3 id="Netty-Server-代码"><a href="#Netty-Server-代码" class="headerlink" title="Netty - Server 代码"></a>Netty - Server 代码</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NettyServer</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">EventLoopGroup</span> <span class="variable">parentGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>();</span><br><span class="line">        <span class="type">EventLoopGroup</span> <span class="variable">childGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">            <span class="type">ServerBootstrap</span> <span class="variable">bootstrap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ServerBootstrap</span>();</span><br><span class="line">            bootstrap.group(parentGroup, childGroup)</span><br><span class="line">                     .channel(NioServerSocketChannel.class)</span><br><span class="line">                     .childHandler(<span class="keyword">new</span> <span class="title class_">ChannelInitializer</span>&lt;SocketChannel&gt;() &#123;</span><br><span class="line"></span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">initChannel</span><span class="params">(SocketChannel ch)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">                            <span class="type">ChannelPipeline</span> <span class="variable">pipeline</span> <span class="operator">=</span> ch.pipeline();</span><br><span class="line">                            pipeline.addLast(<span class="keyword">new</span> <span class="title class_">StringDecoder</span>());</span><br><span class="line">                            pipeline.addLast(<span class="keyword">new</span> <span class="title class_">StringEncoder</span>());</span><br><span class="line">                            pipeline.addLast(<span class="keyword">new</span> <span class="title class_">SomeSocketServerHandler</span>());</span><br><span class="line">                         &#125;</span><br><span class="line">                    &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="type">ChannelFuture</span> <span class="variable">future</span> <span class="operator">=</span> bootstrap.bind(<span class="number">8888</span>).sync();</span><br><span class="line">            System.out.println(<span class="string">&quot;服务器已启动。。。&quot;</span>);</span><br><span class="line"></span><br><span class="line">            future.channel().closeFuture().sync();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            parentGroup.shutdownGracefully();</span><br><span class="line">            childGroup.shutdownGracefully();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Server-端-Handler"><a href="#Server-端-Handler" class="headerlink" title="Server 端 Handler"></a>Server 端 Handler</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoSocketServerHandler</span></span><br><span class="line">                       <span class="keyword">extends</span> <span class="title class_">ChannelInboundHandlerAdapter</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span></span><br><span class="line">            <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Client Address ====== &quot;</span> + ctx.channel().remoteAddress());</span><br><span class="line">        ctx.channel().writeAndFlush(<span class="string">&quot;from server:&quot;</span> + UUID.randomUUID());</span><br><span class="line">        ctx.fireChannelActive();</span><br><span class="line">        TimeUnit.MILLISECONDS.sleep(<span class="number">500</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">exceptionCaught</span><span class="params">(ChannelHandlerContext ctx,</span></span><br><span class="line"><span class="params">                                Throwable cause)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        cause.printStackTrace();</span><br><span class="line">        ctx.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Netty-Client-代码"><a href="#Netty-Client-代码" class="headerlink" title="Netty - Client 代码"></a>Netty - Client 代码</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NettyClient</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">NioEventLoopGroup</span> <span class="variable">eventLoopGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Bootstrap</span> <span class="variable">bootstrap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Bootstrap</span>();</span><br><span class="line">            bootstrap.group(eventLoopGroup)</span><br><span class="line">                    .channel(NioSocketChannel.class)</span><br><span class="line">                    .handler(<span class="keyword">new</span> <span class="title class_">ChannelInitializer</span>&lt;SocketChannel&gt;() &#123;</span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">initChannel</span><span class="params">(SocketChannel ch)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">                            <span class="type">ChannelPipeline</span> <span class="variable">pipeline</span> <span class="operator">=</span> ch.pipeline();</span><br><span class="line">                            pipeline.addLast(<span class="keyword">new</span> <span class="title class_">StringDecoder</span>(CharsetUtil.UTF_8));</span><br><span class="line">                            pipeline.addLast(<span class="keyword">new</span> <span class="title class_">StringEncoder</span>(CharsetUtil.UTF_8));</span><br><span class="line">                            pipeline.addLast(<span class="keyword">new</span> <span class="title class_">DemoSocketClientHandler</span>());</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="type">ChannelFuture</span> <span class="variable">future</span> <span class="operator">=</span> bootstrap.connect(<span class="string">&quot;localhost&quot;</span>, <span class="number">8888</span>).sync();</span><br><span class="line">            future.channel().closeFuture().sync();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(eventLoopGroup != <span class="literal">null</span>) &#123;</span><br><span class="line">                eventLoopGroup.shutdownGracefully();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="Client-端-Handler"><a href="#Client-端-Handler" class="headerlink" title="Client 端 Handler"></a>Client 端 Handler</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoSocketClientHandler</span></span><br><span class="line">               <span class="keyword">extends</span> <span class="title class_">ChannelInboundHandlerAdapter</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span></span><br><span class="line">            <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(msg);</span><br><span class="line">        ctx.channel().writeAndFlush(<span class="string">&quot;from client: &quot;</span> + System.currentTimeMillis());</span><br><span class="line">        TimeUnit.MILLISECONDS.sleep(<span class="number">5000</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Overrid</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelActive</span><span class="params">(ChannelHandlerContext ctx)</span></span><br><span class="line">            <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        ctx.channel().writeAndFlush(<span class="string">&quot;from client：begin talking&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">exceptionCaught</span><span class="params">(ChannelHandlerContext ctx,</span></span><br><span class="line"><span class="params">                                Throwable cause)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        cause.printStackTrace();</span><br><span class="line">        ctx.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="Reactor线程模型"><a href="#Reactor线程模型" class="headerlink" title="Reactor线程模型"></a>Reactor线程模型</h2><h4 id="单线程的-Reactor-模型"><a href="#单线程的-Reactor-模型" class="headerlink" title="单线程的 Reactor 模型"></a>单线程的 Reactor 模型</h4><p><img src="/images/2eb0dda03835704509aa0e7e128697f4.png" alt="img"></p>
-<h4 id="多线程的-Reactor-模型"><a href="#多线程的-Reactor-模型" class="headerlink" title="多线程的 Reactor 模型"></a>多线程的 Reactor 模型</h4><p><img src="/images/e8dc2b8decb27544a1bf9d1d0e41210e.png" alt="img"></p>
-<h4 id="多线程主从-Reactor-模型"><a href="#多线程主从-Reactor-模型" class="headerlink" title="多线程主从 Reactor 模型"></a>多线程主从 Reactor 模型</h4><p><img src="/images/e438aafa106af5b9fc5f1e54761eb5a1.png" alt="img"></p>
-<h2 id="EventLoop-与-EventLoopGroup分析"><a href="#EventLoop-与-EventLoopGroup分析" class="headerlink" title="EventLoop 与 EventLoopGroup分析"></a>EventLoop 与 EventLoopGroup分析</h2><p><img src="/images/NioEventLoop%E6%B5%81%E7%A8%8B.webp" alt="img"></p>
-<h2 id="学习资源"><a href="#学习资源" class="headerlink" title="学习资源"></a>学习资源</h2><p>1、官网地址: <a href="https://netty.io/">https://netty.io/</a></p>
-<p>2、Github地址：<a href="https://github.com/netty/netty">https://github.com/netty/netty</a></p>
-<p>3、<a href="https://blog.csdn.net/qq_35190492/article/details/113174359">肝了一月的Netty知识点</a></p>
-<p>4、<a href="https://waylau.gitbooks.io/essential-netty-in-action/content/">Essential Netty in Action 《Netty 实战(精髓)》</a></p>
-<p>5、<a href="https://www.jianshu.com/p/0d0eece6d467">netty源码分析之揭开reactor线程的面纱（一）</a></p>
-<p>6、<a href="https://www.jianshu.com/p/467a9b41833e">netty源码分析之揭开reactor线程的面纱（二）</a></p>
-<p>7、<a href="https://www.jianshu.com/p/58fad8e42379">netty源码分析之揭开reactor线程的面纱（三）</a></p>
-]]></content>
-      <categories>
-        <category>编程 - 框架</category>
-      </categories>
-      <tags>
-        <tag>Netty</tag>
       </tags>
   </entry>
   <entry>
