@@ -1,25 +1,24 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.2.0">
 
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
-
-<link rel="stylesheet" href="/css/main.css">
-
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
-
-<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.12.1","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="钟镇刚">
+  <meta name="keywords" content="">
+  
     <meta name="description" content="代码仓库：https:&#x2F;&#x2F;github.com&#x2F;junit-team&#x2F;junit5&#x2F; 在Junit5设计分析（一）中分析了IDEA中执行单元测试的主流程和主要类的设计，但是还有两个小点没有分析到： (1) TestEngine是怎么发现测试任务的？ (2) 单元测试方法的参数是怎么解析并获取的？ 在这篇文章里面，就来探索这两个问题。 一、TestEngine是怎么发现测试任务的？我们还是用”Jun">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Junit5设计分析（二）">
@@ -35,267 +34,359 @@
 <meta property="article:modified_time" content="2022-09-03T12:15:56.561Z">
 <meta property="article:author" content="钟镇刚">
 <meta property="article:tag" content="JUnit5">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/images/%E9%80%89%E6%8B%A9%E5%99%A8%E7%9A%84%E5%B1%82%E6%AC%A1%E5%85%B3%E7%B3%BB.png">
+  
+  
+  
+  <title>Junit5设计分析（二） - 钟镇刚的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
 
-<link rel="canonical" href="http://example.com/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%EF%BC%89/","path":"2022/09/03/Junit5设计分析（二）/","title":"Junit5设计分析（二）"}</script>
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
 
-<script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>Junit5设计分析（二） | 钟镇刚的博客</title>
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
-  <script async src="https://hm.baidu.com/hm.js?84040c23487973dba4fe76676ed34bf5"></script>
 
 
 
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
-  <noscript>
-    <link rel="stylesheet" href="/css/noscript.css">
-  </noscript>
-</head>
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
 
-<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
-  <div class="headband"></div>
 
-  <main class="main">
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="切换导航栏" role="button">
-        <span class="toggle-line"></span>
-        <span class="toggle-line"></span>
-        <span class="toggle-line"></span>
-    </div>
-  </div>
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
 
-  <div class="site-meta">
 
-    <a href="/" class="brand" rel="start">
-      <i class="logo-line"></i>
-      <p class="site-title">钟镇刚的博客</p>
-      <i class="logo-line"></i>
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
     </a>
-  </div>
 
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-        <i class="fa fa-search fa-fw fa-lg"></i>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
   </div>
-</div>
-
-
-
-<nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
-      <li class="menu-item menu-item-search">
-        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
-        </a>
-      </li>
-  </ul>
 </nav>
 
-
-
-  <div class="search-pop-overlay">
-    <div class="popup search-popup"><div class="search-header">
-  <span class="search-icon">
-    <i class="fa fa-search"></i>
-  </span>
-  <div class="search-input-container">
-    <input autocomplete="off" autocapitalize="off" maxlength="80"
-           placeholder="搜索..." spellcheck="false"
-           type="search" class="search-input">
-  </div>
-  <span class="popup-btn-close" role="button">
-    <i class="fa fa-times-circle"></i>
-  </span>
-</div>
-<div class="search-result-container no-result">
-  <div class="search-result-icon">
-    <i class="fa fa-spinner fa-pulse fa-5x"></i>
-  </div>
-</div>
-
-    </div>
-  </div>
-
-</div>
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
         
-  
-  <div class="toggle sidebar-toggle" role="button">
-    <span class="toggle-line"></span>
-    <span class="toggle-line"></span>
-    <span class="toggle-line"></span>
-  </div>
-
-  <aside class="sidebar">
-
-    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
-      <ul class="sidebar-nav">
-        <li class="sidebar-nav-toc">
-          文章目录
-        </li>
-        <li class="sidebar-nav-overview">
-          站点概览
-        </li>
-      </ul>
-
-      <div class="sidebar-panel-container">
-        <!--noindex-->
-        <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81TestEngine%E6%98%AF%E6%80%8E%E4%B9%88%E5%8F%91%E7%8E%B0%E6%B5%8B%E8%AF%95%E4%BB%BB%E5%8A%A1%E7%9A%84%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">一、TestEngine是怎么发现测试任务的？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E6%96%B9%E6%B3%95%E7%9A%84%E5%8F%82%E6%95%B0%E6%98%AF%E6%80%8E%E4%B9%88%E8%A7%A3%E6%9E%90%E5%B9%B6%E8%8E%B7%E5%8F%96%E7%9A%84%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">二、单元测试方法的参数是怎么解析并获取的？</span></a></li></ol></div>
-        </div>
-        <!--/noindex-->
-
-        <div class="site-overview-wrap sidebar-panel">
-          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">钟镇刚</p>
-  <div class="site-description" itemprop="description"></div>
-</div>
-<div class="site-state-wrap site-overview-item animated">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-        <a href="/archives/">
-          <span class="site-state-item-count">24</span>
-          <span class="site-state-item-name">日志</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-categories">
-          <a href="/categories/">
-        <span class="site-state-item-count">9</span>
-        <span class="site-state-item-name">分类</span></a>
-      </div>
-      <div class="site-state-item site-state-tags">
-          <a href="/tags/">
-        <span class="site-state-item-count">15</span>
-        <span class="site-state-item-name">标签</span></a>
-      </div>
-  </nav>
-</div>
-  <div class="links-of-author site-overview-item animated">
-      <span class="links-of-author-item">
-        <a href="https://github.com/zhongzhengang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhongzhengang" rel="noopener" target="_blank">GitHub</a>
-      </span>
-      <span class="links-of-author-item">
-        <a href="https://blog.csdn.net/mucaoyx" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;mucaoyx" rel="noopener" target="_blank">CSDN</a>
-      </span>
-  </div>
-
-
-
-        </div>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/categories/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-category-fill"></i>
+                  <span>分类</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
+        
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn"
+               data-label-light="开灯"
+               data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
       </div>
     </div>
-  </aside>
-  <div class="sidebar-dimmer"></div>
+  </div>
+</div>
 
+  
 
-    </header>
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Junit5设计分析（二）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-09-03 12:42" pubdate>
+          2022年9月3日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          28k 字
+        
+      </span>
+    
 
     
-  <div class="back-to-top" role="button" aria-label="返回顶部">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          233 分钟
+        
+      </span>
+    
+
+    
+    
   </div>
 
-<noscript>
-  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
-</noscript>
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
 
 
-    <div class="main-inner post posts-expand">
 
+</div>
 
-  
+  </header>
 
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="钟镇刚">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="钟镇刚的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="Junit5设计分析（二） | 钟镇刚的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          Junit5设计分析（二）
-        </h1>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
+  <main>
+    
       
 
-      <time title="创建时间：2022-09-03 12:42:38 / 修改时间：20:15:56" itemprop="dateCreated datePublished" datetime="2022-09-03T12:42:38+08:00">2022-09-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Java-%E6%B5%8B%E8%AF%95/" itemprop="url" rel="index"><span itemprop="name">Java - 测试</span></a>
-        </span>
-    </span>
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
 
-  
-    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span id="busuanzi_value_page_pv"></span>
-    </span>
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>28k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>25 分钟</span>
-    </span>
-</div>
+    </div>
 
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-        <p>代码仓库：<a target="_blank" rel="noopener" href="https://github.com/junit-team/junit5/">https://github.com/junit-team/junit5/</a></p>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Junit5设计分析（二）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>代码仓库：<a target="_blank" rel="noopener" href="https://github.com/junit-team/junit5/">https://github.com/junit-team/junit5/</a></p>
 <p>在<strong>Junit5设计分析（一）</strong>中分析了IDEA中执行单元测试的主流程和主要类的设计，但是还有两个小点没有分析到：</p>
 <p>(1) TestEngine是怎么发现测试任务的？</p>
 <p>(2) 单元测试方法的参数是怎么解析并获取的？</p>
@@ -335,7 +426,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// org.junit.jupiter.engine.discovery.DiscoverySelectorResolver#resolve 方法</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">resolve</span><span class="params">(EngineDiscoveryRequest request, TestDescriptor engineDescriptor, ClassFilter classFilter)</span> &#123;</span><br><span class="line"><span class="comment">// 1、创建Java元素解析器</span></span><br><span class="line">    <span class="type">JavaElementsResolver</span> <span class="variable">javaElementsResolver</span> <span class="operator">=</span> createJavaElementsResolver(request.getConfigurationParameters(), engineDescriptor, classFilter);</span><br><span class="line">    request.getSelectorsByType(ClasspathRootSelector.class).forEach(javaElementsResolver::resolveClasspathRoot);</span><br><span class="line">    request.getSelectorsByType(ModuleSelector.class).forEach(javaElementsResolver::resolveModule);</span><br><span class="line">    request.getSelectorsByType(PackageSelector.class).forEach(javaElementsResolver::resolvePackage);</span><br><span class="line"> </span><br><span class="line"> request.getSelectorsByType(ClassSelector.class).forEach(javaElementsResolver::resolveClass);</span><br><span class="line"> <span class="comment">// ref-12   request.getSelectorsByType(MethodSelector.class).forEach(javaElementsResolver::resolveMethod);</span></span><br><span class="line">    request.getSelectorsByType(UniqueIdSelector.class).forEach(javaElementsResolver::resolveUniqueId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>在<code>resolve</code>方法中首先创建了一个Java元素解析器，然后从<code>request</code>中获取所有可能的选择器，然后把获取到的选择器传递给元素解析器进行实际的解析。所有选择器的关系如下图所示：</p>
-<p><img src="/images/%E9%80%89%E6%8B%A9%E5%99%A8%E7%9A%84%E5%B1%82%E6%AC%A1%E5%85%B3%E7%B3%BB.png" alt="image-20220820230044639"></p>
+<p><img src="/images/%E9%80%89%E6%8B%A9%E5%99%A8%E7%9A%84%E5%B1%82%E6%AC%A1%E5%85%B3%E7%B3%BB.png" srcset="/img/loading.gif" lazyload alt="image-20220820230044639"></p>
 <p>首先得说一点，<code>DiscoverySelector</code>接口中没有任何得方法，是一个标识接口，在它的实现类中都有不同的方法，但是这些方法都是为了选择出测试任务，这个<code>DiscoverySelector</code>就是标识出所有不同实现类拥有着相同的目标。学到了啊，这就是标识接口的标准用法。</p>
 <p>在我们的使用的单元测试例子中，只会进入到<code>ref-12</code>处的方法选择器中。我们详细来看看<code>resolveMethod</code>方法：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"># org.junit.jupiter.engine.discovery.JavaElementsResolver#resolveMethod 方法</span><br><span class="line"><span class="keyword">void</span> <span class="title function_">resolveMethod</span><span class="params">(MethodSelector selector)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 1、从选择器中获取测试类信息</span></span><br><span class="line">        Class&lt;?&gt; testClass = selector.getJavaClass();</span><br><span class="line">        <span class="comment">// 2、从选择器中获取测试方法信息</span></span><br><span class="line">        <span class="type">Method</span> <span class="variable">testMethod</span> <span class="operator">=</span> selector.getJavaMethod();</span><br><span class="line">		<span class="comment">// 3、解析testClass相关的测试任务（TestDescriptor），并且挂载到engineDescriptor的Children上。</span></span><br><span class="line">        Set&lt;TestDescriptor&gt; potentialParents = resolveContainerWithParents(testClass); <span class="comment">// ref-13</span></span><br><span class="line">        <span class="comment">// 3、解析testMethod相关的测试任务，并且挂载到相应的testClass的TestDescriptor的Children上。</span></span><br><span class="line">        Set&lt;TestDescriptor&gt; resolvedDescriptors = resolveForAllParents(testMethod, potentialParents); <span class="comment">// ref-14</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (resolvedDescriptors.isEmpty()) &#123;</span><br><span class="line">            logger.debug(() -&gt; format(<span class="string">&quot;Method &#x27;%s&#x27; could not be resolved.&quot;</span>, testMethod.toGenericString()));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        logMultipleTestDescriptorsForSingleElement(testMethod, resolvedDescriptors);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        rethrowIfBlacklisted(t);</span><br><span class="line">        logger.debug(t, () -&gt; format(<span class="string">&quot;Method &#x27;%s&#x27; in class &#x27;%s&#x27; could not be resolved.&quot;</span>, selector.getMethodName(), selector.getClassName()));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -351,7 +442,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// org.junit.jupiter.engine.discovery.JavaElementsResolver#resolve 方法</span></span><br><span class="line"><span class="keyword">private</span> Set&lt;TestDescriptor&gt; <span class="title function_">resolve</span><span class="params">(AnnotatedElement element, TestDescriptor parent)</span> &#123;</span><br><span class="line">    <span class="comment">// 使用解析器尝试解析element对象相关的测试任务（TestDescriptor）</span></span><br><span class="line">    Set&lt;TestDescriptor&gt; descriptors = <span class="built_in">this</span>.resolvers.stream()</span><br><span class="line">        .map(resolver -&gt; tryToResolveWithResolver(element, parent, resolver)) <span class="comment">// ref-17</span></span><br><span class="line">        .filter(testDescriptors -&gt; !testDescriptors.isEmpty())</span><br><span class="line">        .flatMap(Collection::stream)</span><br><span class="line">        .collect(toSet());</span><br><span class="line"></span><br><span class="line">    logMultipleTestDescriptorsForSingleElement(element, descriptors);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> descriptors;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><code>resolve</code>方法使用所有解析器来尝试解析<code>element</code>元素相关的测试任务<code>TestDescriptor</code>，我们先来看看解析器都有哪些：</p>
-<p><img src="/images/%E6%89%80%E6%9C%89%E7%B1%BB%E5%9E%8B%E7%9A%84%E8%A7%A3%E6%9E%90%E5%99%A8.png" alt="image-20220823201401694"></p>
+<p><img src="/images/%E6%89%80%E6%9C%89%E7%B1%BB%E5%9E%8B%E7%9A%84%E8%A7%A3%E6%9E%90%E5%99%A8.png" srcset="/img/loading.gif" lazyload alt="image-20220823201401694"></p>
 <p>这些解析器都会在<code>ref-17</code>处的<code>tryToResolveWithResolver</code>方法中被调用，让我们来看看详细代码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// org.junit.jupiter.engine.discovery.JavaElementsResolver#tryToResolveWithResolver 方法</span></span><br><span class="line"><span class="keyword">private</span> Set&lt;TestDescriptor&gt; <span class="title function_">tryToResolveWithResolver</span><span class="params">(AnnotatedElement element, TestDescriptor parent, ElementResolver resolver)</span> &#123;</span><br><span class="line">	<span class="comment">// 1、调用解析器解析TestDescriptor</span></span><br><span class="line">    Set&lt;TestDescriptor&gt; resolvedDescriptors = resolver.resolveElement(element, parent); <span class="comment">// ref-18</span></span><br><span class="line">    Set&lt;TestDescriptor&gt; result = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line">	<span class="comment">// 2、将解析出来的TestDescriptor挂载到parent上，并且添加到结果集合result中。</span></span><br><span class="line">    resolvedDescriptors.forEach(testDescriptor -&gt; &#123;</span><br><span class="line">        <span class="comment">// 3、在当前的this.engineDescriptor中查找是否已经存在该testDescriptor</span></span><br><span class="line">        Optional&lt;TestDescriptor&gt; existingTestDescriptor = findTestDescriptorByUniqueId(</span><br><span class="line">            testDescriptor.getUniqueId());</span><br><span class="line">        <span class="keyword">if</span> (existingTestDescriptor.isPresent()) &#123; <span class="comment">// 如果存在，就只添加到结果集合result中</span></span><br><span class="line">            result.add(existingTestDescriptor.get());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123; <span class="comment">// 如果不存在，那么先将testDescriptor挂载到parent上，再添加到结果集合result中</span></span><br><span class="line">            parent.addChild(testDescriptor);</span><br><span class="line">            result.add(testDescriptor);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -381,7 +472,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// org.junit.platform.engine.discovery.DiscoverySelectors.java 文件</span></span><br><span class="line"><span class="meta">@API(status = STABLE, since = &quot;1.0&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">DiscoverySelectors</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> MethodSelector <span class="title function_">selectMethod</span><span class="params">(String fullyQualifiedMethodName)</span> <span class="keyword">throws</span> PreconditionViolationException &#123;</span><br><span class="line">        <span class="comment">// 1、将className, methodName, methodParameters解析出来</span></span><br><span class="line">        String[] methodParts = ReflectionUtils.parseFullyQualifiedMethodName(fullyQualifiedMethodName);</span><br><span class="line">        <span class="comment">// 2、创建MethodSelector</span></span><br><span class="line">        <span class="keyword">return</span> selectMethod(methodParts[<span class="number">0</span>], methodParts[<span class="number">1</span>], methodParts[<span class="number">2</span>]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> MethodSelector <span class="title function_">selectMethod</span><span class="params">(String className, String methodName, String methodParameterTypes)</span> &#123;</span><br><span class="line">        Preconditions.notBlank(className, <span class="string">&quot;Class name must not be null or blank&quot;</span>);</span><br><span class="line">        Preconditions.notBlank(methodName, <span class="string">&quot;Method name must not be null or blank&quot;</span>);</span><br><span class="line">        Preconditions.notNull(methodParameterTypes, <span class="string">&quot;Parameter types must not be null&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">MethodSelector</span>(className, methodName, methodParameterTypes.trim());</span><br><span class="line">    &#125;</span><br><span class="line">    ...... 省略其他方法</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>跟到这儿，我们已经清楚了<code>MethodSelector</code> 的创建和测试任务<code>TestDescriptor</code>的发现，下面由一张图来小总结一下：</p>
-<p><img src="/images/Junit5%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E6%B5%8B%E8%AF%95%E4%BB%BB%E5%8A%A1%E5%8F%91%E7%8E%B0%E6%B5%81%E7%A8%8B.png" alt="Junit5源码分析-测试任务发现流程"></p>
+<p><img src="/images/Junit5%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E6%B5%8B%E8%AF%95%E4%BB%BB%E5%8A%A1%E5%8F%91%E7%8E%B0%E6%B5%81%E7%A8%8B.png" srcset="/img/loading.gif" lazyload alt="Junit5源码分析-测试任务发现流程"></p>
 <p>在这个图里面重点注意三个：<code>LauncherDiscoveryRequest</code>、<code>EngineDiscoveryRequest</code>、<code>ExecutionRequest</code>，这三个请求分别对应JUnit5执行测试任务的阶段：启动阶段、引擎发现阶段、任务执行阶段。申明一下，没有在官网找到相关文档，这只是个人的理解。而且，从这儿看出来<strong>JUnit5是把自己当作一个独立运行的服务</strong>，而是被第三方嵌入的SDK，别人向它提交的都是一个个的请求。</p>
 <h2 id="二、单元测试方法的参数是怎么解析并获取的？"><a href="#二、单元测试方法的参数是怎么解析并获取的？" class="headerlink" title="二、单元测试方法的参数是怎么解析并获取的？"></a>二、单元测试方法的参数是怎么解析并获取的？</h2><p>我们先来看看JUnit5中实际调用测试方法的地方：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// org.junit.jupiter.engine.execution.ExecutableInvoker#invoke 方法</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Invoke the supplied method on the supplied target object with dynamic parameter</span></span><br><span class="line"><span class="comment">* resolution.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> method the method to invoke and resolve parameters for</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> target the object on which the method will be invoked; should be</span></span><br><span class="line"><span class="comment">* &#123;<span class="doctag">@code</span> null&#125; for static methods</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> extensionContext the current &#123;<span class="doctag">@code</span> ExtensionContext&#125;</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> extensionRegistry the &#123;<span class="doctag">@code</span> ExtensionRegistry&#125; to retrieve</span></span><br><span class="line"><span class="comment">* &#123;<span class="doctag">@code</span> ParameterResolvers&#125; from</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> Object <span class="title function_">invoke</span><span class="params">(Method method, Object target, ExtensionContext extensionContext,</span></span><br><span class="line"><span class="params">                     ExtensionRegistry extensionRegistry)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">    Optional&lt;Object&gt; optionalTarget = (target <span class="keyword">instanceof</span> Optional ? (Optional&lt;Object&gt;) target</span><br><span class="line">                                       : Optional.ofNullable(target));</span><br><span class="line">    <span class="keyword">return</span> ReflectionUtils.invokeMethod(method, target,</span><br><span class="line">    	resolveParameters(method, optionalTarget, extensionContext, extensionRegistry)); <span class="comment">//ref-24</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -395,7 +486,7 @@
 
 <p>在<code>ref-26</code>处调用唯一的那个参数解析器开始解析具体参数值，<code>resolver#resolveParameter</code>就封装了不同种类参数的具体解析逻辑。</p>
 <p>我们看看都有哪些参数解析器实现？</p>
-<p><img src="/images/%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E5%99%A8%E5%AE%9E%E7%8E%B0%E7%B1%BB.png" alt="image-20220826121941564"></p>
+<p><img src="/images/%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E5%99%A8%E5%AE%9E%E7%8E%B0%E7%B1%BB.png" srcset="/img/loading.gif" lazyload alt="image-20220826121941564"></p>
 <ul>
 <li><code>RepetitionInfo</code>是解析重复测试的参数，也就是标注了<code>@RepeatedTest</code>的测试方法会用到这个参数解析器。</li>
 <li><code>TestReporterParameterResolver</code>在解析参数的时候，会向执行监听器发送事件，并不会解析参数。</li>
@@ -414,113 +505,435 @@
 
 <p>小总结，参数解析器就是以<code>Extention</code>的形式添加到<code>RegistryExtention</code>中，然后在执行测试方法之前，就可以拿出来进行调用，解析处需要的参数，传递给测试方法，就可以执行了。</p>
 
-    </div>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
 
+<span class="category-chains">
+  
+  
     
-    
-    
-
-    <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/JUnit5/" rel="tag"># JUnit5</a>
-          </div>
-
+      <span class="category-chain">
         
+  <a href="/categories/Java-%E6%B5%8B%E8%AF%95/" class="category-chain-item">Java - 测试</a>
+  
+  
 
-          <div class="post-nav">
-            <div class="post-nav-item">
-                <a href="/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%EF%BC%89/" rel="prev" title="Junit5设计分析（三）">
-                  <i class="fa fa-chevron-left"></i> Junit5设计分析（三）
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/JUnit5/" class="print-no-link">#JUnit5</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Junit5设计分析（二）</div>
+      <div>http://example.com/2022/09/03/Junit5设计分析（二）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>钟镇刚</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年9月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
                 </a>
-            </div>
-            <div class="post-nav-item">
-                <a href="/2022/09/03/Docker%E6%8E%A2%E7%B4%A2%E4%B9%8B%E6%97%85/" rel="next" title="DDocker探索之旅">
-                  DDocker探索之旅 <i class="fa fa-chevron-right"></i>
-                </a>
-            </div>
+              
+            
           </div>
-    </footer>
-  </article>
-</div>
-
-
-
-
-
-
-</div>
-  </main>
-
-  <footer class="footer">
-    <div class="footer-inner">
-
-
-<div class="copyright">
-  &copy; 
-  <span itemprop="copyrightYear">2022</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">钟镇刚</span>
-</div>
-<div class="wordcount">
-  <span class="post-meta-item">
-    <span class="post-meta-item-icon">
-      <i class="fa fa-chart-line"></i>
-    </span>
-      <span>站点总字数：</span>
-    <span title="站点总字数">216k</span>
-  </span>
-  <span class="post-meta-item">
-    <span class="post-meta-item-icon">
-      <i class="fa fa-coffee"></i>
-    </span>
-      <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">3:17</span>
-  </span>
-</div>
-<div class="busuanzi-count">
-    <span class="post-meta-item" id="busuanzi_container_site_uv">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-user"></i>
-      </span>
-      <span class="site-uv" title="总访客量">
-        <span id="busuanzi_value_site_uv"></span>
-      </span>
-    </span>
-    <span class="post-meta-item" id="busuanzi_container_site_pv">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-eye"></i>
-      </span>
-      <span class="site-pv" title="总访问量">
-        <span id="busuanzi_value_site_pv"></span>
-      </span>
-    </span>
-</div>
-  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
   </div>
 
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/03/Docker%E6%8E%A2%E7%B4%A2%E4%B9%8B%E6%97%85/" title="DDocker探索之旅">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">DDocker探索之旅</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/03/Junit5%E8%AE%BE%E8%AE%A1%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%EF%BC%89/" title="Junit5设计分析（三）">
+                        <span class="hidden-mobile">Junit5设计分析（三）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
     </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
   </footer>
 
+  <!-- Scripts -->
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
-<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
 
   
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.0/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
-<script src="/js/third-party/search/local-search.js"></script>
-
+    <script  src="/js/img-lazyload.js" ></script>
+  
 
 
 
 
   
-  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
 
 
 
 
 
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>
